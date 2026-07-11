@@ -1,0 +1,42 @@
+# Velocity infrastructure: Postgres 16 + Redis + LiveKit.
+# Copy .env.example → .env and fill in secrets before `docker compose up -d`.
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-velocity}
+      POSTGRES_USER: ${POSTGRES_USER:-velocity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-velocity}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    # Required by LiveKit for room state; also available to the server for caching.
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  livekit:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    depends_on:
+      - redis
+    volumes:
+      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7880:7880"          # WebSocket signaling (HTTP)
+      - "7881:7881"          # TCP media fallback
+      - "50000-50100:50000-50100/udp"  # WebRTC media (forward on router in M13)
+
+volumes:
+  pgdata:

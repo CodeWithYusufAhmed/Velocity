@@ -1,0 +1,15 @@
+# LiveKit development config. Production values (real keys, TURN, external IP)
+# are set in M13. Keys here are DEV ONLY and must be replaced before deploy.
+port: 7880
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 50100
+  use_external_ip: false
+redis:
+  address: redis:6379
+keys:
+  # DEV ONLY — replace in production (M13); never ship these in the app.
+  devkey: devsecret_change_me_before_production_0000
+logging:
+  level: info

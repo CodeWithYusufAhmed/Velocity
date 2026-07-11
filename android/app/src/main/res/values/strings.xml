@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Velocity</string>
+    <string name="tab_game">Game</string>
+    <string name="tab_tables">Tables</string>
+    <string name="tab_friends">Friends</string>
+    <string name="tab_profile">Profile</string>
+</resources>

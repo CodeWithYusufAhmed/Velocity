@@ -1,0 +1,13 @@
+<!-- Placeholder launcher icon: a neon-blue "V" speed mark. Original artwork, no brand assets. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#2F81F7"
+        android:pathData="M34,36 L50,74 L58,74 L74,36 L64,36 L54,62 L44,36 Z" />
+    <path
+        android:fillColor="#F0B429"
+        android:pathData="M30,80 L78,80 L76,84 L32,84 Z" />
+</vector>
