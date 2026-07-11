@@ -190,7 +190,7 @@ class GameEngine:
                 )
             )
 
-            top3 = []
+            top3: list[dict] = []
             if per_user_won:
                 winners = sorted(per_user_won.items(), key=lambda kv: kv[1], reverse=True)[:3]
                 names = {
@@ -203,6 +203,7 @@ class GameEngine:
                     {"user_id": uid, "display_name": names.get(uid, "?"), "won": won}
                     for uid, won in winners
                 ]
+            await s.execute(update(Round).where(Round.id == st.round_id).values(top3=top3))
             await s.commit()
 
         return {

@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    JSON,
     Numeric,
     String,
     Text,
@@ -95,6 +96,8 @@ class Round(Base):
     winning_position: Mapped[int | None] = mapped_column(Integer)
     betting_opened_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     resulted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Top 3 winners of the round, stored forever (spec A6): [{user_id, display_name, won}]
+    top3: Mapped[list | None] = mapped_column(JSON)
 
 
 class Bet(Base, IdMixin, CreatedAtMixin):
