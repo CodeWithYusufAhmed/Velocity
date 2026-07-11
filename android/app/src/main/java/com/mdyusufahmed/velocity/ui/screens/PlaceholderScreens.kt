@@ -31,6 +31,3 @@ fun TablesScreen() = Placeholder("🎙️ Tables", "Voice rooms arrive in M10")
 
 @Composable
 fun FriendsScreen() = Placeholder("👥 Friends", "Friends & DMs arrive in M11")
-
-@Composable
-fun ProfileScreen() = Placeholder("🧑 Profile", "Stats & VIP arrive in M11")

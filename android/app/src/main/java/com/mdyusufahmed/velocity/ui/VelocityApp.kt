@@ -23,10 +23,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mdyusufahmed.velocity.R
+import com.mdyusufahmed.velocity.ui.about.AboutScreen
+import com.mdyusufahmed.velocity.ui.profile.ProfileScreen
 import com.mdyusufahmed.velocity.ui.screens.FriendsScreen
 import com.mdyusufahmed.velocity.ui.screens.GameScreen
-import com.mdyusufahmed.velocity.ui.screens.ProfileScreen
 import com.mdyusufahmed.velocity.ui.screens.TablesScreen
+import com.mdyusufahmed.velocity.ui.settings.SettingsScreen
 
 enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
     Game("game", R.string.tab_game, Icons.Filled.Casino),
@@ -40,10 +42,13 @@ fun VelocityApp() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
+    val onTab = Tab.entries.any { t ->
+        currentDestination?.hierarchy?.any { it.route == t.route } == true
+    }
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            if (onTab) NavigationBar {
                 Tab.entries.forEach { tab ->
                     NavigationBarItem(
                         selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true,
@@ -69,7 +74,14 @@ fun VelocityApp() {
             composable(Tab.Game.route) { GameScreen() }
             composable(Tab.Tables.route) { TablesScreen() }
             composable(Tab.Friends.route) { FriendsScreen() }
-            composable(Tab.Profile.route) { ProfileScreen() }
+            composable(Tab.Profile.route) {
+                ProfileScreen(
+                    onOpenSettings = { navController.navigate("settings") },
+                    onOpenAbout = { navController.navigate("about") },
+                )
+            }
+            composable("settings") { SettingsScreen() }
+            composable("about") { AboutScreen() }
         }
     }
 }
