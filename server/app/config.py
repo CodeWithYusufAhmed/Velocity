@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     jwt_access_ttl_minutes: int = 15
     jwt_refresh_ttl_days: int = 30
     google_oauth_client_id: str = ""  # Web client ID; set in M2
+    admin_password: str = ""  # separate strong password for /admin; empty = admin disabled
 
     # --- LiveKit (used from M5) ---
     livekit_url: str = "ws://127.0.0.1:7880"

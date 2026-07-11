@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><title>Velocity Admin — Login</title>
+<style>
+  body{background:#0D1117;color:#E6EDF3;font:15px/1.5 system-ui;display:flex;
+       align-items:center;justify-content:center;min-height:100vh;margin:0}
+  form{background:#161B22;border:1px solid #232B36;border-radius:14px;padding:28px;
+       display:flex;flex-direction:column;gap:10px;width:320px}
+  input{background:#0D1117;border:1px solid #232B36;border-radius:8px;padding:8px 10px;color:#E6EDF3}
+  button{background:#2F81F7;color:#fff;border:0;border-radius:999px;padding:9px;font-weight:600;cursor:pointer}
+  .err{color:#F85149;font-size:13px}
+  h1{font-size:18px;margin:0 0 6px}
+</style></head><body>
+<form method="post" action="/admin/login">
+  <h1>🏎️ Velocity Admin</h1>
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <input name="email" type="email" placeholder="Admin account email" required>
+  <input name="password" type="password" placeholder="Account password" required>
+  <input name="admin_password" type="password" placeholder="Admin dashboard password" required>
+  <button>Log in</button>
+</form>
+</body></html>

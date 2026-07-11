@@ -109,12 +109,22 @@ async def _livekit_moderate(action: str, table_id: int, user_id: int) -> None:
 
 # ---- lifecycle -------------------------------------------------------------
 
+async def _cap(session: AsyncSession, key: str, default: int) -> int:
+    """Capacity cap: runtime_settings override (admin dashboard) else .env default."""
+    from app.models import RuntimeSetting
+    row = await session.get(RuntimeSetting, key)
+    try:
+        return int(row.value) if row else default
+    except ValueError:
+        return default
+
+
 async def create_table(session: AsyncSession, owner: User, name: str,
                        topic: str | None, chair_count: int) -> Table:
     if chair_count not in (8, 10, 12):
         raise TableError("Chair count must be 8, 10 or 12")
     open_count = len(hub.rooms)
-    if open_count >= get_settings().max_tables:
+    if open_count >= await _cap(session, "max_tables", get_settings().max_tables):
         raise TableError("Server is at its table capacity right now", 503)
     t = Table(owner_id=owner.id, name=name.strip(), topic=(topic or "").strip() or None,
               chair_count=chair_count)
@@ -133,7 +143,8 @@ async def join_table(session: AsyncSession, table_id: int, user: User) -> dict:
         raise TableError("You are blocked from this Table", 403)
     room = hub.rooms.setdefault(
         t.id, RoomState(table_id=t.id, chair_count=t.chair_count, owner_id=t.owner_id))
-    if len(room.members) >= get_settings().max_listeners_per_table:
+    if len(room.members) >= await _cap(session, "max_listeners_per_table",
+                                       get_settings().max_listeners_per_table):
         raise TableError("This Table is full right now", 503)
     room.members.add(user.id)
     tier = await vip.active_tier(session, user.id)

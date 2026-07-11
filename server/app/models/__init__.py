@@ -25,6 +25,7 @@ from app.models.social import (
     TableRole,
     UserBlock,
 )
+from app.models.admin import RuntimeSetting
 from app.models.vip import DailyWinningsCounter, VipStatus
 
 __all__ = [
@@ -33,5 +34,5 @@ __all__ = [
     "OddsSlot", "UserSettings", "DailyStats", "AdminAudit",
     "Table", "TableRole", "TableBlock", "TableChatBan",
     "Friendship", "FriendRequest", "PendingMessage", "UserBlock", "Report",
-    "VipStatus", "DailyWinningsCounter",
+    "VipStatus", "DailyWinningsCounter", "RuntimeSetting",
 ]

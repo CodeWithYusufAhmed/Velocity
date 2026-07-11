@@ -1,0 +1,110 @@
+<!doctype html>
+<html><head><title>Velocity Admin</title>
+<meta http-equiv="refresh" content="30">
+<style>
+  body{background:#0D1117;color:#E6EDF3;font:14px/1.5 system-ui;margin:0;padding:20px}
+  h1{font-size:20px} h2{font-size:15px;color:#2F81F7;margin:18px 0 6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .card{background:#161B22;border:1px solid #232B36;border-radius:12px;padding:12px 14px;overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  td,th{border-bottom:1px solid #232B36;padding:4px 6px;text-align:left;font-variant-numeric:tabular-nums}
+  input,button{background:#0D1117;border:1px solid #232B36;border-radius:6px;padding:4px 8px;color:#E6EDF3;font-size:12px}
+  button{background:#2F81F7;border:0;color:#fff;cursor:pointer;border-radius:999px}
+  button.danger{background:#F85149}
+  .ok{color:#3FB950} .warn{color:#F0B429} .bad{color:#F85149}
+  form.inline{display:inline-flex;gap:4px;align-items:center}
+  .stat{font-size:22px;font-weight:700;color:#F0B429}
+</style></head><body>
+<h1>🏎️ Velocity Admin <small style="color:#8B96A5">— auto-refreshes every 30s · logged in as {{ admin.display_name }}</small></h1>
+
+<div class="grid">
+  <div class="card"><h2>Live round</h2>
+    {% if engine_state %}
+      <div class="stat">#{{ engine_state.round_id }} · {{ engine_state.phase }} · {{ engine_state.seconds_left }}s</div>
+      <div>commit: <code style="font-size:11px">{{ engine_state.commit[:32] }}…</code></div>
+    {% else %}<div class="warn">Round engine not running in this process</div>{% endif %}
+    <div>Game sockets online: <b>{{ online_game }}</b> · Social online: <b>{{ online_social }}</b></div>
+    <div>Rounds settled last 24h: <b>{{ rounds_today }}</b></div>
+  </div>
+
+  <div class="card"><h2>Economy</h2>
+    <div>Total coin supply: <span class="stat">{{ "{:,}".format(coin_supply) }}</span></div>
+    <div>Users: <b>{{ user_count }}</b></div>
+    <h2>Biggest wins today</h2>
+    <table>{% for name, win in biggest %}<tr><td>{{ name }}</td><td>{{ "{:,}".format(win) }}</td></tr>{% endfor %}</table>
+  </div>
+
+  <div class="card"><h2>Users</h2>
+    <form method="get" action="/admin" class="inline"><input name="q" value="{{ q }}" placeholder="name or email"><button>Search</button></form>
+    <table>
+    {% for u in users %}
+      <tr><td>#{{ u.id }} {{ u.display_name }}<br><small>{{ u.email }}</small></td>
+          <td>{{ "{:,}".format(u.balance) }}</td>
+          <td>
+            <form class="inline" method="post" action="/admin/users/{{ u.id }}/adjust">
+              <input name="amount" type="number" placeholder="+/- coins" style="width:90px" required>
+              <input name="note" placeholder="note" style="width:80px"><button>Adjust</button>
+            </form>
+            <form class="inline" method="post" action="/admin/users/{{ u.id }}/ban">
+              <input type="hidden" name="banned" value="{{ 'false' if u.is_banned else 'true' }}">
+              <button class="danger">{{ 'Unban' if u.is_banned else 'Ban' }}</button>
+            </form>
+          </td></tr>
+    {% endfor %}
+    </table>
+  </div>
+
+  <div class="card"><h2>Odds editor</h2>
+    {% if rtp_uniform %}<div class="ok">✔ RTP uniform across all slots (prob sum {{ "%.6f"|format(prob_sum) }})</div>
+    {% else %}<div class="bad">⚠ RTP is NOT uniform — this breaks the fairness promise! Fix probabilities.</div>{% endif %}
+    <table>
+    {% for o in odds %}
+      <tr><td>{{ o.position }}</td>
+        <td><form class="inline" method="post" action="/admin/odds/{{ o.position }}">
+          <input name="name" value="{{ o.name }}" style="width:110px">
+          <input name="multiplier" type="number" value="{{ o.multiplier }}" style="width:50px">
+          <input name="probability" value="{{ o.probability }}" style="width:110px">
+          <button>Save</button></form></td>
+        <td>RTP {{ "%.4f"|format(rtps[loop.index0]) }}</td></tr>
+    {% endfor %}
+    </table>
+    <small class="warn">Edits apply on server restart (engine loads odds at startup).</small>
+  </div>
+
+  <div class="card"><h2>Tables monitor</h2>
+    <table>
+    {% for row in tables %}
+      <tr><td>#{{ row.t.id }} {{ row.t.name }}</td>
+          <td>{{ row.room.members|length if row.room else 0 }} in / {{ row.room.chairs|length if row.room else 0 }} mic</td>
+          <td><form class="inline" method="post" action="/admin/tables/{{ row.t.id }}/close">
+              <button class="danger">Force close</button></form></td></tr>
+    {% else %}<tr><td>No open tables</td></tr>{% endfor %}
+    </table>
+    <h2>Capacity</h2>
+    <form class="inline" method="post" action="/admin/capacity">
+      Max tables <input name="max_tables" type="number" value="{{ max_tables }}" style="width:60px">
+      Max listeners <input name="max_listeners" type="number" value="{{ max_listeners }}" style="width:60px">
+      <button>Save</button>
+    </form>
+  </div>
+
+  <div class="card"><h2>Reports queue ({{ reports|length }})</h2>
+    <table>
+    {% for r in reports %}
+      <tr><td>#{{ r.id }}</td><td>user {{ r.reporter_id }} → user {{ r.reported_id }}</td>
+          <td>{{ r.reason }}{% if r.note %}<br><small>{{ r.note }}</small>{% endif %}</td>
+          <td><form class="inline" method="post" action="/admin/reports/{{ r.id }}/resolve">
+              <button>Resolve</button></form></td></tr>
+    {% else %}<tr><td class="ok">Queue is empty 🎉</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  <div class="card"><h2>Active VIPs</h2>
+    <table>
+    {% for name, tier, exp in vips %}
+      <tr><td>{{ name }}</td><td class="warn">VIP{{ tier }}</td><td>until {{ exp.strftime("%Y-%m-%d %H:%M") }} UTC</td></tr>
+    {% else %}<tr><td>No active VIPs</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+</body></html>
