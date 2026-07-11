@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
+
+// Release signing from android/keystore.properties (gitignored) or CI env vars.
+val ksProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val ksFile: String? = ksProps.getProperty("storeFile") ?: System.getenv("KEYSTORE_FILE")
 
 android {
     namespace = "com.mdyusufahmed.velocity"
@@ -27,10 +36,22 @@ android {
         )
     }
 
+    if (ksFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(ksFile)
+                storePassword = ksProps.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = ksProps.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
+                keyPassword = ksProps.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (ksFile != null) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

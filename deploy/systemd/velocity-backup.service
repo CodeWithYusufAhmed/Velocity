@@ -1,0 +1,7 @@
+[Unit]
+Description=Velocity nightly pg_dump
+
+[Service]
+Type=oneshot
+User=yusuf
+ExecStart=/home/yusuf/velocity/deploy/backup/pg_backup.sh

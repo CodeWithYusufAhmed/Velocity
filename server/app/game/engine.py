@@ -234,6 +234,7 @@ class GameEngine:
 
     async def run_one_round(self) -> None:
         s = get_settings()
+        await self.load_slots()  # pick up admin odds edits without a restart
         await self.open_round()
         await self._countdown(BETTING, s.betting_seconds)
         self.state.phase = SPINNING  # bets locked from this instant

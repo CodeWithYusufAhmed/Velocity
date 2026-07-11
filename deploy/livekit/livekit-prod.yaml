@@ -1,0 +1,19 @@
+# LiveKit PRODUCTION config. Copy over livekit.yaml on the Ubuntu box and
+# replace the key/secret (generate: openssl rand -hex 32). Must match
+# LIVEKIT_API_KEY / LIVEKIT_API_SECRET in server/.env.
+port: 7880
+rtc:
+  tcp_port: 7881                # TCP fallback for strict NATs
+  port_range_start: 50000
+  port_range_end: 50100         # forward this UDP range on the router
+  use_external_ip: true         # STUN-discovers your public IP for ICE
+redis:
+  address: redis:6379
+keys:
+  velocity_prod: REPLACE_WITH_openssl_rand_hex_32
+turn:
+  enabled: true                 # last-resort relay for users behind hard NATs
+  domain: livekit.mdyusufahmed.com
+  tls_port: 5349                # forward TCP 5349 too if you enable TURN/TLS
+logging:
+  level: info

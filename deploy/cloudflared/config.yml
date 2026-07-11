@@ -1,0 +1,12 @@
+# Cloudflare Tunnel: carries HTTPS + WebSockets (API, /ws/game, /ws/social, /admin).
+# WebRTC MEDIA does NOT go through the tunnel — that's the router port-forward (see DEPLOYMENT.md).
+# Install: cloudflared service install (creates its own systemd unit)
+tunnel: velocity            # created with: cloudflared tunnel create velocity
+credentials-file: /home/yusuf/.cloudflared/velocity.json
+
+ingress:
+  - hostname: velocity.mdyusufahmed.com
+    service: http://127.0.0.1:8000
+  - hostname: livekit.mdyusufahmed.com   # LiveKit SIGNALING (websocket) only
+    service: http://127.0.0.1:7880
+  - service: http_status:404

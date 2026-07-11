@@ -1,80 +1,80 @@
 # Velocity 🏎️
 
-A **free, open-source** Android game + social voice platform: a shared multiplayer
-lucky wheel with virtual coins that can **never** be bought, sold, cashed out, or
-transferred — plus live voice rooms ("Tables"), friends, and direct messages.
+A **free, open-source** Android game + social voice platform: a shared
+multiplayer lucky wheel with virtual coins that can **never** be bought, sold,
+cashed out, or transferred — plus live voice rooms ("Tables"), friends, and
+on-device direct messages.
 
-## Why Velocity exists
+*(screenshots coming with the v1.0 release)*
 
-Real-money "lucky wheel" apps take money from people every day. Velocity recreates
-the fun — the shared wheel, the voice-room hangouts — with coins that are worthless
-by design. No store, no ads, no in-app purchases, ever. The wheel's odds favor the
-**player** (~113.6% return-to-player on every slot), the math is public, and every
-round is provably fair.
+## Philosophy — why this exists
 
-The app even shows you how much real money you did **not** spend.
+Real-money "lucky wheel" apps take money from people every day; the author and
+many others have lost real money to them. Velocity recreates everything fun
+about those apps — the shared wheel, the countdown, the voice-room hangouts —
+and removes the harm:
 
-## Monorepo layout
+- **No money, ever.** No store, no ads, no purchases, no cash-out, no coin
+  transfers. VIP is earned by playing, never bought.
+- **The odds favor YOU.** Every slot returns ~113.6% to players (the exact
+  math is in the app's About screen and in `server/app/game/odds.py`). There is
+  no house edge — the "house" is a free server that wants you to win.
+- **Provably fair.** Every round publishes `SHA256(seed‖round_id)` *before*
+  betting closes and reveals the seed with the result. Any round is
+  re-verifiable in-app or at `GET /rounds/{id}/verify`.
+- **Anti-addiction by design.** A "Money You Didn't Spend" counter, and a
+  self-set daily round limit that only takes raises the *next* day.
 
-```
-velocity/
-├── server/    # Python 3.12, FastAPI, uvicorn — game engine, social API, WebSockets
-├── android/   # Kotlin 2.x, Jetpack Compose (Material 3) — the app
-├── admin/     # Server-rendered admin dashboard (Jinja2, served by FastAPI)
-├── deploy/    # docker-compose (Postgres 16 + LiveKit + Redis), systemd, cloudflared
-├── LICENSE    # MIT
-└── README.md
-```
+## What's inside
+
+| Part | Stack |
+|------|-------|
+| `server/` | Python 3.12, FastAPI, SQLAlchemy 2 async, Postgres 16, commit-reveal RNG, WebSockets, LiveKit tokens, VIP engine, 146 tests |
+| `android/` | Kotlin 2.x, Jetpack Compose (Material 3), Hilt, Retrofit, Room (device-only DM history), LiveKit Android SDK |
+| `admin/` | Server-rendered Jinja2 dashboard at `/admin` (round monitor, users, odds editor with uniform-RTP guard, tables, reports, capacity) |
+| `deploy/` | docker-compose (Postgres+Redis+LiveKit), systemd units, Cloudflare Tunnel config, nightly backups, full self-hosting guide |
 
 ## Quick start (development)
 
-### Infrastructure (Docker)
-
 ```bash
-cd deploy
-cp .env.example .env      # fill in values
-docker compose up -d      # Postgres 16 + Redis + LiveKit
+cd deploy && cp .env.example .env && docker compose up -d
+cd ../server && python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+cp .env.example .env
+.venv/bin/alembic upgrade head
+.venv/bin/uvicorn app.main:app --reload    # → http://127.0.0.1:8000/health
+.venv/bin/python -m pytest tests -q        # 146 passed
+.venv/bin/python -m scripts.simulate_rtp   # 1,000,000-round fairness check
 ```
 
-### Server
+Android: open `android/` in Android Studio and Run (emulator targets the local
+server at `10.0.2.2:8000` out of the box).
 
-```bash
-cd server
-python -m venv .venv
-.venv\Scripts\activate    # Windows   |   source .venv/bin/activate  # Linux
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-# → http://127.0.0.1:8000/health
-```
+## Self-hosting
 
-### Android
+The whole platform runs on one home PC. The complete walkthrough — Docker,
+Cloudflare Tunnel, LiveKit production config, router port-forwarding (with
+exact ASUS AX55 steps), systemd, nightly `pg_dump`, signed APK, GitHub release
+automation — is in [deploy/DEPLOYMENT.md](deploy/DEPLOYMENT.md).
 
-Open `android/` in Android Studio, or:
+## Direct messages & privacy
 
-```bash
-cd android
-gradlew.bat assembleDebug
-```
-
-## Fair play, in the open
-
-- Every slot on the wheel has an identical ~113.6% RTP — the house always loses.
-- Rounds use a commit-reveal scheme: the SHA-256 commitment of the server seed is
-  published **before** betting closes; the seed is revealed with the result and any
-  past round can be re-verified in the app or via a public endpoint.
-
-## Legal
-
-Velocity is a fan-made free game and is not affiliated with, sponsored, or endorsed
-by any car manufacturer. All brand names are property of their respective owners.
-Nothing of monetary value can be wagered, won, or purchased in Velocity.
+DM history is stored **only on your device** (Room/SQLite). If you're offline,
+messages wait encrypted-in-transit in a server queue and are **deleted the
+moment they're delivered** (or purged after 30 days). Reinstalling the app
+clears your history — by design, the server has nothing to give back.
 
 ## Future work
 
-- Optional end-to-end encryption for direct messages
+- Optional end-to-end encryption for DMs
 - Email verification at registration
-- Profile pictures
-- Gifts (coin/cosmetic only — never monetary)
+- RNNoise "Studio Noise Removal" (WebRTC noise suppression ships today)
+- Gifts — coin/cosmetic only, never monetary
+
+## Legal
+
+Velocity is a fan-made free game and is not affiliated with, sponsored, or
+endorsed by any car manufacturer. All brand names are property of their
+respective owners. Nothing of monetary value can be wagered, won, or purchased.
 
 ## License
 

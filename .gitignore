@@ -4,6 +4,7 @@
 !.env.example
 *.keystore
 *.jks
+android/keystore.properties
 
 # Python
 __pycache__/
