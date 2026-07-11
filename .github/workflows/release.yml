@@ -19,10 +19,24 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/velocity-release.jks
+      - name: Decode keystore (optional)
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Release signing secrets are missing; building unsigned APK."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > android/velocity-release.jks
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
 
       - name: Build signed APK
+        if: steps.keystore.outputs.enabled == 'true'
         working-directory: android
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/android/velocity-release.jks
@@ -33,8 +47,20 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
 
+      - name: Build unsigned APK
+        if: steps.keystore.outputs.enabled != 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
       - name: Rename artifact
-        run: cp android/app/build/outputs/apk/release/app-release.apk velocity-${{ github.ref_name }}.apk
+        run: |
+          apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$apk_path" ]; then
+            apk_path="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          fi
+          cp "$apk_path" velocity-${{ github.ref_name }}.apk
 
       - name: Attach to GitHub Release
         uses: softprops/action-gh-release@v2
