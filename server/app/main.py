@@ -1,10 +1,11 @@
-"""Velocity server entry point.
-
-M0: boots FastAPI and answers /health. Routers, DB, and WebSockets arrive in
-later milestones.
-"""
+"""Velocity server entry point."""
 
 from fastapi import FastAPI
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+from app.rate_limit import limiter
+from app.routers import auth
 
 app = FastAPI(
     title="Velocity",
@@ -12,8 +13,11 @@ app = FastAPI(
         "Free multiplayer wheel game + social voice platform. "
         "Virtual coins only — nothing of monetary value can be wagered or won."
     ),
-    version="0.0.1",
+    version="0.0.2",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.include_router(auth.router)
 
 
 @app.get("/health")
