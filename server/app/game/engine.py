@@ -113,6 +113,26 @@ class GameEngine:
                     raise BetError("Account unavailable")
                 if user.balance < amount:
                     raise BetError("Insufficient balance")
+
+                # Anti-addiction: self-set daily round limit (counts distinct rounds).
+                from app.services import economy
+                first_bet_this_round = (
+                    await s.scalar(
+                        select(Bet.id).where(
+                            Bet.round_id == st.round_id, Bet.user_id == user_id
+                        ).limit(1)
+                    )
+                ) is None
+                stats = await economy.get_daily_stats(s, user_id)
+                if first_bet_this_round:
+                    limit = await economy.effective_round_limit(s, user_id)
+                    if limit is not None and stats.rounds_played >= limit:
+                        raise BetError(
+                            "You reached your self-set daily round limit — watching is still fine!"
+                        )
+                    stats.rounds_played += 1
+                stats.total_bet += amount
+
                 user.balance -= amount
                 bet = Bet(
                     round_id=st.round_id, user_id=user_id,
@@ -145,6 +165,7 @@ class GameEngine:
                     b.payout = payout
                     per_user_won[b.user_id] = per_user_won.get(b.user_id, 0) + payout
 
+            from app.services import economy, vip
             for uid, won in per_user_won.items():
                 user = await s.get(User, uid, with_for_update=True)
                 user.balance += won
@@ -154,6 +175,10 @@ class GameEngine:
                         balance_after=user.balance, round_id=st.round_id,
                     )
                 )
+                stats = await economy.get_daily_stats(s, uid)
+                stats.total_won += won
+                stats.biggest_win = max(stats.biggest_win, won)
+                await vip.record_winnings(s, uid, won)  # VIP thresholds/replacement
 
             await s.execute(
                 update(Round)

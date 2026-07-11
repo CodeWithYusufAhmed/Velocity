@@ -15,6 +15,7 @@ PyJWT==2.10.1
 google-auth==2.40.1
 requests==2.32.3  # transport for google-auth token verification
 email-validator==2.2.0
+tzdata==2025.2  # IANA tz database for Windows (Asia/Dhaka day boundary)
 slowapi==0.1.9
 
 # M5+: voice

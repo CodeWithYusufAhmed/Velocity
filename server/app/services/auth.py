@@ -62,6 +62,8 @@ async def register(session: AsyncSession, email: str, display_name: str, passwor
     session.add(user)
     await session.flush()
     session.add(Credential(user_id=user.id, password_hash=hash_password(password)))
+    from app.services.economy import signup_grant
+    await signup_grant(session, user)  # 100,000 free coins — never purchasable
     await session.commit()
     return _auth_response(user, await _issue_tokens(session, user))
 
@@ -107,6 +109,9 @@ async def google_login(session: AsyncSession, token: str) -> AuthResponse:
                 balance=0,
             )
             session.add(user)
+            await session.flush()
+            from app.services.economy import signup_grant
+            await signup_grant(session, user)
         await session.commit()
     if user.is_banned:
         raise AuthError("This account is banned", 403)
