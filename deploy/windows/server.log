@@ -258,3 +258,4 @@ INFO:     127.0.0.1:52034 - "GET /health HTTP/1.1" 200 OK
 INFO:     163.61.240.40:0 - "POST /auth/register HTTP/1.1" 201 Created
 INFO:     163.61.240.40:0 - "GET / HTTP/1.1" 404 Not Found
 INFO:     163.61.240.40:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     163.61.240.40:0 - "GET / HTTP/1.1" 404 Not Found
