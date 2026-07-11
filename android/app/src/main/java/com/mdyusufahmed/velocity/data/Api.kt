@@ -50,6 +50,15 @@ import retrofit2.http.PUT
     @SerialName("pending_round_limit") val pendingRoundLimit: Int? = null,
     @SerialName("pending_effective_date") val pendingEffectiveDate: String? = null)
 
+@Serializable data class Top3Entry(
+    @SerialName("user_id") val userId: Long,
+    @SerialName("display_name") val displayName: String, val won: Long)
+@Serializable data class RecentRound(
+    @SerialName("round_id") val roundId: Long,
+    @SerialName("winning_position") val winningPosition: Int,
+    val name: String, val multiplier: Int, val top3: List<Top3Entry> = emptyList())
+@Serializable data class BalanceResponse(val balance: Long, val granted: Boolean)
+
 interface VelocityApi {
     @POST("auth/register") suspend fun register(@Body body: RegisterRequest): AuthResponse
     @POST("auth/login") suspend fun login(@Body body: LoginRequest): AuthResponse
@@ -59,4 +68,7 @@ interface VelocityApi {
     @GET("rounds/odds") suspend fun odds(): List<OddsSlotDto>
     @GET("me") suspend fun profile(): Profile
     @PUT("me/round-limit") suspend fun setRoundLimit(@Body body: RoundLimitRequest): RoundLimitResponse
+    @GET("rounds/recent") suspend fun recentRounds(): List<RecentRound>
+    @POST("me/bonus") suspend fun claimBonus(): BalanceResponse
+    @POST("me/rescue") suspend fun claimRescue(): BalanceResponse
 }

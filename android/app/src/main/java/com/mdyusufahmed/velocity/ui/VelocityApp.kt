@@ -25,8 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import com.mdyusufahmed.velocity.R
 import com.mdyusufahmed.velocity.ui.about.AboutScreen
 import com.mdyusufahmed.velocity.ui.profile.ProfileScreen
+import com.mdyusufahmed.velocity.ui.game.GameScreen
 import com.mdyusufahmed.velocity.ui.screens.FriendsScreen
-import com.mdyusufahmed.velocity.ui.screens.GameScreen
 import com.mdyusufahmed.velocity.ui.screens.TablesScreen
 import com.mdyusufahmed.velocity.ui.settings.SettingsScreen
 
