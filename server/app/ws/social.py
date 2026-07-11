@@ -66,11 +66,17 @@ async def ws_social(ws: WebSocket, token: str = ""):
         return
     await ws.accept()
     social_hub.by_user[user_id] = ws
+    async with SessionLocal() as s:
+        from app.services import dms, friends
+        await dms.deliver_pending(s, user_id)  # queued DMs arrive, then vanish server-side
+        await _presence(s, user_id, online=True)
     try:
         while True:
             msg = await ws.receive_json()
             if msg.get("type") == "table_chat_send":
                 await _handle_chat(ws, user_id, msg)
+            elif msg.get("type") == "send_dm":
+                await _handle_dm(ws, user_id, msg)
             else:
                 await ws.send_json({"type": "error", "message": "Unknown message type"})
     except WebSocketDisconnect:
@@ -78,6 +84,31 @@ async def ws_social(ws: WebSocket, token: str = ""):
     finally:
         if social_hub.by_user.get(user_id) is ws:
             social_hub.by_user.pop(user_id, None)
+            async with SessionLocal() as s:
+                await _presence(s, user_id, online=False)
+
+
+async def _presence(session, user_id: int, online: bool) -> None:
+    """Tell online friends this user came or went."""
+    from app.services import friends
+    for fid in await friends.friend_ids(session, user_id):
+        await social_hub.send_to(
+            fid, {"type": "presence", "user_id": user_id, "online": online})
+
+
+async def _handle_dm(ws: WebSocket, user_id: int, msg: dict) -> None:
+    from app.services import dms
+    async with SessionLocal() as s:
+        sender = await s.get(User, user_id)
+        try:
+            result = await dms.send_dm(s, sender, int(msg.get("recipient_id", 0)),
+                                       str(msg.get("text", "")))
+            await ws.send_json({"type": "dm_delivered",
+                                "recipient_id": msg.get("recipient_id"),
+                                "client_ref": msg.get("client_ref"), **result})
+        except (dms.DmError, ValueError) as e:
+            await ws.send_json({"type": "error", "message": str(e),
+                                "client_ref": msg.get("client_ref")})
 
 
 async def _handle_chat(ws: WebSocket, user_id: int, msg: dict) -> None:

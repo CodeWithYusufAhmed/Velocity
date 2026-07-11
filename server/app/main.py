@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.db import SessionLocal
 from app.game.engine import GameEngine
 from app.rate_limit import limiter
-from app.routers import auth, economy, rounds, tables
+from app.routers import auth, economy, friends, rounds, tables
 from app.ws import game as ws_game
 from app.ws import social as ws_social
 
@@ -24,10 +24,25 @@ async def lifespan(app: FastAPI):
         engine.subscribe(ws_game.hub.broadcast)
         app.state.engine = engine
         engine_task = asyncio.create_task(engine.run_forever())
+    purge_task = asyncio.create_task(_dm_purge_loop())
     yield
+    purge_task.cancel()
     if engine_task:
         app.state.engine.stop()
         engine_task.cancel()
+
+
+async def _dm_purge_loop() -> None:
+    """Daily job: drop pending DMs older than 30 days (spec B4)."""
+    from app.services.dms import purge_expired
+    while True:
+        try:
+            async with SessionLocal() as s:
+                await purge_expired(s)
+        except Exception:
+            import logging
+            logging.getLogger("velocity").exception("DM purge failed")
+        await asyncio.sleep(24 * 3600)
 
 
 app = FastAPI(
@@ -43,6 +58,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(auth.router)
 app.include_router(economy.router)
+app.include_router(friends.router)
 app.include_router(rounds.router)
 app.include_router(tables.router)
 app.include_router(tables.safety_router)
