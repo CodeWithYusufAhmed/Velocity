@@ -121,6 +121,22 @@ fun ProfileScreen(
                 }
                 Card {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("👑 VIP status", style = MaterialTheme.typography.titleMedium)
+                        if (p.vipTier > 0) {
+                            Text("VIP${p.vipTier} active",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.secondary)
+                            Text("Earned by playing — never bought. Higher tiers replace " +
+                                 "lower ones instantly.", style = MaterialTheme.typography.bodySmall)
+                        } else {
+                            Text("No VIP right now", style = MaterialTheme.typography.bodyMedium)
+                            Text("Win 1,000,000+ coins in a single day (Dhaka time) to earn VIP1.",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                Card {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("Today", style = MaterialTheme.typography.titleMedium)
                         Text("Rounds: ${p.today.roundsPlayed} · Won: ${"%,d".format(p.today.totalWon)}" +
                              " · Biggest: ${"%,d".format(p.today.biggestWin)}")

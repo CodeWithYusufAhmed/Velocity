@@ -9,7 +9,9 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.DELETE
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 @Serializable data class RegisterRequest(
     val email: String, @SerialName("display_name") val displayName: String, val password: String)
@@ -88,6 +90,22 @@ import retrofit2.http.Path
 @Serializable data class KickResponse(
     val kicked: Boolean = false, val reason: String? = null)
 
+@Serializable data class FriendDto(
+    val id: Long, @SerialName("display_name") val displayName: String,
+    val online: Boolean = false, @SerialName("vip_tier") val vipTier: Int = 0)
+@Serializable data class FriendsList(
+    @SerialName("friend_limit") val friendLimit: Int, val count: Int,
+    val friends: List<FriendDto>)
+@Serializable data class FriendRequestDto(
+    val id: Long, @SerialName("sender_id") val senderId: Long,
+    @SerialName("recipient_id") val recipientId: Long,
+    @SerialName("sender_name") val senderName: String,
+    @SerialName("recipient_name") val recipientName: String,
+    val incoming: Boolean)
+@Serializable data class SearchResult(
+    val id: Long, @SerialName("display_name") val displayName: String,
+    @SerialName("vip_tier") val vipTier: Int = 0)
+
 interface VelocityApi {
     @POST("auth/register") suspend fun register(@Body body: RegisterRequest): AuthResponse
     @POST("auth/login") suspend fun login(@Body body: LoginRequest): AuthResponse
@@ -118,4 +136,24 @@ interface VelocityApi {
 
     @Multipart @POST("me/avatar")
     suspend fun uploadAvatar(@Part file: MultipartBody.Part)
+
+    @GET("friends") suspend fun friends(): FriendsList
+    @GET("friends/requests") suspend fun friendRequests(): List<FriendRequestDto>
+    @POST("friends/requests") suspend fun sendFriendRequest(@Body body: TargetRequest): kotlinx.serialization.json.JsonObject
+    @POST("friends/requests/{id}/accept") suspend fun acceptRequest(@Path("id") id: Long)
+    @POST("friends/requests/{id}/decline") suspend fun declineRequest(@Path("id") id: Long)
+    @DELETE("friends/requests/{id}") suspend fun cancelRequest(@Path("id") id: Long)
+    @DELETE("friends/{id}") suspend fun unfriend(@Path("id") id: Long)
+    @GET("friends/search") suspend fun searchUsers(@Query("q") q: String): List<SearchResult>
+    @GET("rounds/{id}/verify") suspend fun verifyRound(@Path("id") id: Long): VerifyResponse
 }
+
+@Serializable data class VerifyResponse(
+    @SerialName("round_id") val roundId: Long,
+    val revealed: Boolean,
+    val commit: String,
+    @SerialName("server_seed") val serverSeed: String? = null,
+    @SerialName("winning_position") val winningPosition: Int? = null,
+    @SerialName("commit_valid") val commitValid: Boolean? = null,
+    @SerialName("result_valid") val resultValid: Boolean? = null,
+    @SerialName("how_to_verify") val howToVerify: String? = null)

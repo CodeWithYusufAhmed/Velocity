@@ -43,7 +43,7 @@ class TablesViewModel @Inject constructor(private val api: VelocityApi) : ViewMo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TablesScreen(onOpenTable: (Long) -> Unit, vm: TablesViewModel = hiltViewModel()) {
+fun TablesScreen(onOpenTable: (Long, String) -> Unit, vm: TablesViewModel = hiltViewModel()) {
     val tables by vm.tables.collectAsState()
     val error by vm.error.collectAsState()
     var showCreate by remember { mutableStateOf(false) }
@@ -60,7 +60,7 @@ fun TablesScreen(onOpenTable: (Long) -> Unit, vm: TablesViewModel = hiltViewMode
                 style = MaterialTheme.typography.bodyMedium)
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(tables) { t ->
-                    Card(onClick = { onOpenTable(t.id) }) {
+                    Card(onClick = { onOpenTable(t.id, t.name) }) {
                         Row(Modifier.fillMaxWidth().padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
@@ -97,8 +97,9 @@ fun TablesScreen(onOpenTable: (Long) -> Unit, vm: TablesViewModel = hiltViewMode
                 }
                 Button(
                     onClick = {
-                        vm.create(name, topic.ifBlank { null }, chairs) { id ->
-                            showCreate = false; onOpenTable(id)
+                        val tableName = name
+                        vm.create(tableName, topic.ifBlank { null }, chairs) { id ->
+                            showCreate = false; onOpenTable(id, tableName)
                         }
                     },
                     enabled = name.trim().length >= 2,

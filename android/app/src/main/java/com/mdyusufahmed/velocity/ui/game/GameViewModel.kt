@@ -95,6 +95,12 @@ class GameViewModel @Inject constructor(
         }.onFailure { state.value = state.value.copy(rescueOffered = false) }
     }
 
+    val verify = MutableStateFlow<com.mdyusufahmed.velocity.data.VerifyResponse?>(null)
+    fun openVerify(roundId: Long) = viewModelScope.launch {
+        runCatching { api.verifyRound(roundId) }.onSuccess { verify.value = it }
+    }
+    fun closeVerify() { verify.value = null }
+
     fun dismissResult() { state.value = state.value.copy(result = null) }
     fun dismissError() { state.value = state.value.copy(error = null) }
 

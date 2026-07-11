@@ -26,7 +26,8 @@ import com.mdyusufahmed.velocity.R
 import com.mdyusufahmed.velocity.ui.about.AboutScreen
 import com.mdyusufahmed.velocity.ui.profile.ProfileScreen
 import com.mdyusufahmed.velocity.ui.game.GameScreen
-import com.mdyusufahmed.velocity.ui.screens.FriendsScreen
+import com.mdyusufahmed.velocity.ui.friends.DmScreen
+import com.mdyusufahmed.velocity.ui.friends.FriendsScreen
 import com.mdyusufahmed.velocity.ui.tables.TableRoomScreen
 import com.mdyusufahmed.velocity.ui.tables.TablesScreen
 import com.mdyusufahmed.velocity.ui.settings.SettingsScreen
@@ -74,14 +75,25 @@ fun VelocityApp() {
         ) {
             composable(Tab.Game.route) { GameScreen() }
             composable(Tab.Tables.route) {
-                TablesScreen(onOpenTable = { id -> navController.navigate("table/$id") })
+                TablesScreen(onOpenTable = { id, name ->
+                    navController.navigate("table/$id/${java.net.URLEncoder.encode(name, "UTF-8")}")
+                })
             }
-            composable("table/{id}") { entry ->
+            composable("table/{id}/{name}") { entry ->
                 val id = entry.arguments?.getString("id")?.toLongOrNull() ?: return@composable
-                TableRoomScreen(tableId = id, tableName = "Table",
+                val name = java.net.URLDecoder.decode(
+                    entry.arguments?.getString("name") ?: "Table", "UTF-8")
+                TableRoomScreen(tableId = id, tableName = name,
                     onExit = { navController.popBackStack() })
             }
-            composable(Tab.Friends.route) { FriendsScreen() }
+            composable(Tab.Friends.route) {
+                FriendsScreen(onOpenDm = { id, name ->
+                    navController.navigate("dm/$id/${java.net.URLEncoder.encode(name, "UTF-8")}")
+                })
+            }
+            composable("dm/{peerId}/{peerName}") {
+                DmScreen(onBack = { navController.popBackStack() })
+            }
             composable(Tab.Profile.route) {
                 ProfileScreen(
                     onOpenSettings = { navController.navigate("settings") },

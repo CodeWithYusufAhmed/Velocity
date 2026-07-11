@@ -65,7 +65,8 @@ fun GameScreen(vm: GameViewModel = hiltViewModel()) {
         // Result strip (last 50)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             items(s.recent) { r ->
-                Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.surface) {
+                Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.clickable { vm.openVerify(r.roundId) }) {
                     Column(Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(CAR_EMOJI[r.winningPosition] ?: "🚗")
@@ -131,6 +132,29 @@ fun GameScreen(vm: GameViewModel = hiltViewModel()) {
     }
 
     s.result?.let { ResultOverlay(it, onDismiss = vm::dismissResult) }
+    val verify by vm.verify.collectAsState()
+    verify?.let { v ->
+        AlertDialog(
+            onDismissRequest = vm::closeVerify,
+            confirmButton = { TextButton(onClick = vm::closeVerify) { Text("Close") } },
+            title = { Text("Round #${v.roundId} — provably fair") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (v.revealed) {
+                        Text(if (v.commitValid == true && v.resultValid == true)
+                            "✅ Verified: the result matches the commitment published " +
+                            "before betting closed." else "❌ Verification mismatch!",
+                            color = if (v.commitValid == true && v.resultValid == true)
+                                WinGreen else MaterialTheme.colorScheme.error)
+                        Text("Commit: ${v.commit.take(24)}…",
+                            style = MaterialTheme.typography.labelSmall)
+                        Text("Seed: ${v.serverSeed?.take(24)}…",
+                            style = MaterialTheme.typography.labelSmall)
+                        v.howToVerify?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
+                    } else Text("This round hasn't revealed its seed yet.")
+                }
+            })
+    }
     if (s.rescueOffered) RescueSheet(rescuesLeft = s.rescuesLeft,
         onClaim = vm::claimRescue, onDismiss = { vm.state.value = s.copy(rescueOffered = false) })
     s.error?.let {
