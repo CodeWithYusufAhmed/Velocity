@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     game_timezone: str = "Asia/Dhaka"
     coins_per_dollar: int = 8_000  # for the Money-You-Didn't-Spend estimate
 
+    # --- Betting chips ---
+    chip_values: list[int] = [200, 500, 1_000, 4_000, 10_000, 30_000, 100_000]
+
+    # --- Round engine ---
+    round_engine_enabled: bool = True  # tests/tools disable it
+
     # --- Round loop timings (seconds) ---
     betting_seconds: int = 15
     spinning_seconds: int = 3
