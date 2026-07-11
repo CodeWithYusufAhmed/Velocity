@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug-only: allow plain HTTP to the local dev server (10.0.2.2 / LAN IP).
+     Release builds are HTTPS-only via the Cloudflare tunnel. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application
+        android:usesCleartextTraffic="true"
+        tools:ignore="MissingApplicationIcon" />
+</manifest>

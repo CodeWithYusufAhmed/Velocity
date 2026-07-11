@@ -52,6 +52,8 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (ksFile != null) signingConfig = signingConfigs.getByName("release")
+            // Production server (HTTPS via Cloudflare Tunnel)
+            buildConfigField("String", "SERVER_BASE_URL", "\"https://velocity.mdyusufahmed.com\"")
         }
     }
     compileOptions {

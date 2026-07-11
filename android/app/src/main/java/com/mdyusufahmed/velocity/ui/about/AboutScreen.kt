@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO(M13): replace with Yusuf's real Buy Me a Coffee URL.
-const val COFFEE_URL = "https://buymeacoffee.com/"
+// Donation link not set up yet — button shows "coming soon" until Yusuf provides it.
+const val COFFEE_URL = ""
 
 @HiltViewModel
 class AboutViewModel @Inject constructor(private val api: VelocityApi) : ViewModel() {
@@ -92,9 +92,15 @@ fun AboutScreen(vm: AboutViewModel = hiltViewModel()) {
                     "developer a coffee — entirely optional, and it never buys anything in-game.",
                     style = MaterialTheme.typography.bodySmall,
                 )
-                OutlinedButton(onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(COFFEE_URL)))
-                }) { Text("☕ Buy me a coffee") }
+                if (COFFEE_URL.isNotBlank()) {
+                    OutlinedButton(onClick = {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(COFFEE_URL)))
+                    }) { Text("☕ Buy me a coffee") }
+                } else {
+                    OutlinedButton(onClick = {}, enabled = false) {
+                        Text("☕ Buy me a coffee — coming soon")
+                    }
+                }
             }
         }
 
