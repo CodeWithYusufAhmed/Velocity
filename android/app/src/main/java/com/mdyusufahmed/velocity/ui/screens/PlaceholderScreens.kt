@@ -24,7 +24,4 @@ private fun Placeholder(title: String, subtitle: String) {
 }
 
 @Composable
-fun TablesScreen() = Placeholder("🎙️ Tables", "Voice rooms arrive in M10")
-
-@Composable
 fun FriendsScreen() = Placeholder("👥 Friends", "Friends & DMs arrive in M11")

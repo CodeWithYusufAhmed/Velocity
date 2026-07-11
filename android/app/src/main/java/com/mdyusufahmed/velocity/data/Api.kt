@@ -2,10 +2,14 @@ package com.mdyusufahmed.velocity.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
+import retrofit2.http.Path
 
 @Serializable data class RegisterRequest(
     val email: String, @SerialName("display_name") val displayName: String, val password: String)
@@ -59,6 +63,31 @@ import retrofit2.http.PUT
     val name: String, val multiplier: Int, val top3: List<Top3Entry> = emptyList())
 @Serializable data class BalanceResponse(val balance: Long, val granted: Boolean)
 
+@Serializable data class TableDto(
+    val id: Long, val name: String, val topic: String? = null,
+    @SerialName("chair_count") val chairCount: Int,
+    @SerialName("member_count") val memberCount: Int = 0, val speakers: Int = 0)
+@Serializable data class CreateTableRequest(
+    val name: String, val topic: String? = null,
+    @SerialName("chair_count") val chairCount: Int)
+@Serializable data class JoinTableResponse(
+    @SerialName("livekit_token") val livekitToken: String,
+    @SerialName("livekit_url") val livekitUrl: String,
+    val role: String, @SerialName("vip_tier") val vipTier: Int,
+    @SerialName("chair_count") val chairCount: Int,
+    val chairs: Map<String, Long> = emptyMap())
+@Serializable data class MemberDto(
+    val id: Long, @SerialName("display_name") val displayName: String,
+    val role: String, @SerialName("vip_tier") val vipTier: Int,
+    val chair: Int? = null, @SerialName("has_avatar") val hasAvatar: Boolean = false)
+@Serializable data class TargetRequest(@SerialName("user_id") val userId: Long)
+@Serializable data class SitRequest(val position: Int)
+@Serializable data class ReportRequest(
+    @SerialName("user_id") val userId: Long, val reason: String,
+    val note: String? = null, @SerialName("table_id") val tableId: Long? = null)
+@Serializable data class KickResponse(
+    val kicked: Boolean = false, val reason: String? = null)
+
 interface VelocityApi {
     @POST("auth/register") suspend fun register(@Body body: RegisterRequest): AuthResponse
     @POST("auth/login") suspend fun login(@Body body: LoginRequest): AuthResponse
@@ -71,4 +100,22 @@ interface VelocityApi {
     @GET("rounds/recent") suspend fun recentRounds(): List<RecentRound>
     @POST("me/bonus") suspend fun claimBonus(): BalanceResponse
     @POST("me/rescue") suspend fun claimRescue(): BalanceResponse
+
+    @GET("tables") suspend fun tables(): List<TableDto>
+    @POST("tables") suspend fun createTable(@Body body: CreateTableRequest): TableDto
+    @POST("tables/{id}/join") suspend fun joinTable(@Path("id") id: Long): JoinTableResponse
+    @POST("tables/{id}/leave") suspend fun leaveTable(@Path("id") id: Long)
+    @GET("tables/{id}/members") suspend fun members(@Path("id") id: Long): List<MemberDto>
+    @POST("tables/{id}/sit") suspend fun sit(@Path("id") id: Long, @Body body: SitRequest)
+    @POST("tables/{id}/stand") suspend fun stand(@Path("id") id: Long)
+    @POST("tables/{id}/kick") suspend fun kick(@Path("id") id: Long, @Body body: TargetRequest): KickResponse
+    @POST("tables/{id}/mute") suspend fun muteUser(@Path("id") id: Long, @Body body: TargetRequest)
+    @POST("tables/{id}/block") suspend fun blockFromTable(@Path("id") id: Long, @Body body: TargetRequest)
+    @POST("tables/{id}/chat-ban") suspend fun chatBan(@Path("id") id: Long, @Body body: TargetRequest)
+    @POST("tables/{id}/admins") suspend fun grantAdmin(@Path("id") id: Long, @Body body: TargetRequest)
+    @POST("reports") suspend fun report(@Body body: ReportRequest)
+    @POST("blocks/{id}") suspend fun blockUser(@Path("id") id: Long)
+
+    @Multipart @POST("me/avatar")
+    suspend fun uploadAvatar(@Part file: MultipartBody.Part)
 }

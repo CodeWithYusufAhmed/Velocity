@@ -27,7 +27,8 @@ import com.mdyusufahmed.velocity.ui.about.AboutScreen
 import com.mdyusufahmed.velocity.ui.profile.ProfileScreen
 import com.mdyusufahmed.velocity.ui.game.GameScreen
 import com.mdyusufahmed.velocity.ui.screens.FriendsScreen
-import com.mdyusufahmed.velocity.ui.screens.TablesScreen
+import com.mdyusufahmed.velocity.ui.tables.TableRoomScreen
+import com.mdyusufahmed.velocity.ui.tables.TablesScreen
 import com.mdyusufahmed.velocity.ui.settings.SettingsScreen
 
 enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
@@ -72,7 +73,14 @@ fun VelocityApp() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Tab.Game.route) { GameScreen() }
-            composable(Tab.Tables.route) { TablesScreen() }
+            composable(Tab.Tables.route) {
+                TablesScreen(onOpenTable = { id -> navController.navigate("table/$id") })
+            }
+            composable("table/{id}") { entry ->
+                val id = entry.arguments?.getString("id")?.toLongOrNull() ?: return@composable
+                TableRoomScreen(tableId = id, tableName = "Table",
+                    onExit = { navController.popBackStack() })
+            }
             composable(Tab.Friends.route) { FriendsScreen() }
             composable(Tab.Profile.route) {
                 ProfileScreen(

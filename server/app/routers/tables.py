@@ -68,6 +68,39 @@ async def list_tables(session: AsyncSession = Depends(get_session),
     return out
 
 
+@router.get("/{table_id}/members")
+async def members(table_id: int, user: User = Depends(get_current_user),
+                  session: AsyncSession = Depends(get_session)):
+    """Everyone in the room, ordered owner → admins → users (Yusuf's rule #5)."""
+    from app.services import vip
+    from app.models import TableRole
+    t = await session.get(Table, table_id)
+    if t is None:
+        raise HTTPException(404, "Table not found")
+    room = svc.hub.room(table_id)
+    ids = list(room.members) if room else []
+    if not ids:
+        return []
+    admin_ids = set((await session.scalars(
+        select(TableRole.user_id).where(TableRole.table_id == table_id))).all())
+    users = (await session.scalars(select(User).where(User.id.in_(ids)))).all()
+    seated = {uid: pos for pos, uid in (room.chairs.items() if room else {})}
+
+    def rank(u: User) -> int:
+        return 0 if u.id == t.owner_id else (1 if u.id in admin_ids else 2)
+
+    out = []
+    for u in sorted(users, key=lambda u: (rank(u), u.display_name.lower())):
+        out.append({
+            "id": u.id, "display_name": u.display_name,
+            "role": ["owner", "admin", "user"][rank(u)],
+            "vip_tier": await vip.active_tier(session, u.id),
+            "chair": seated.get(u.id),
+            "has_avatar": u.avatar is not None,
+        })
+    return out
+
+
 @router.post("/{table_id}/join")
 async def join(table_id: int, user: User = Depends(get_current_user),
                session: AsyncSession = Depends(get_session)):

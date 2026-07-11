@@ -91,9 +91,17 @@ fun SettingsScreen(vm: SettingsViewModel = hiltViewModel()) {
         Card {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Voice", style = MaterialTheme.typography.titleMedium)
-                Text("Noise cancellation is ON by default in Tables. " +
-                     "Studio Noise Removal arrives with the Tables update.",
-                    style = MaterialTheme.typography.bodySmall)
+                Text("Noise cancellation, echo cancellation and auto gain are always ON " +
+                     "(WebRTC built-ins).", style = MaterialTheme.typography.bodySmall)
+                var studio by remember { mutableStateOf(false) }
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Text("Studio Noise Removal (RNNoise)", style = MaterialTheme.typography.bodyMedium)
+                    Switch(checked = studio, onCheckedChange = { studio = it }, enabled = false)
+                }
+                Text("Coming in a free update — needs a native audio processor.",
+                    style = MaterialTheme.typography.labelSmall)
             }
         }
 

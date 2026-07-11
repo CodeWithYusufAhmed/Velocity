@@ -12,6 +12,7 @@ from sqlalchemy import (
     Index,
     Integer,
     JSON,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -30,6 +31,9 @@ class User(Base, IdMixin, CreatedAtMixin):
     # Virtual coins only — never purchasable or transferable (Prime Directive 1).
     balance: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
     google_sub: Mapped[str | None] = mapped_column(String(64), unique=True)
+    # Small circular profile picture (pulled forward from later-feature by Yusuf, M10).
+    avatar: Mapped[bytes | None] = mapped_column(LargeBinary)
+    avatar_mime: Mapped[str | None] = mapped_column(String(32))
     is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_banned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 

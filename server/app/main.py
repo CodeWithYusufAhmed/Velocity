@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.db import SessionLocal
 from app.game.engine import GameEngine
 from app.rate_limit import limiter
-from app.routers import auth, economy, friends, leaderboard, rounds, tables
+from app.routers import auth, avatars, economy, friends, leaderboard, rounds, tables
 from app.ws import game as ws_game
 from app.ws import social as ws_social
 
@@ -57,6 +57,7 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(auth.router)
+app.include_router(avatars.router)
 app.include_router(economy.router)
 app.include_router(friends.router)
 app.include_router(leaderboard.router)

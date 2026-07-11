@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -14,6 +15,8 @@ import com.mdyusufahmed.velocity.data.AuthRepository
 import com.mdyusufahmed.velocity.data.Profile
 import com.mdyusufahmed.velocity.data.VelocityApi
 import com.mdyusufahmed.velocity.data.ws.SocketManager
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -40,6 +43,22 @@ class ProfileViewModel @Inject constructor(
         sockets.stop()
         auth.logout()
     }
+
+    fun uploadAvatar(context: android.content.Context, uri: android.net.Uri) = viewModelScope.launch {
+        runCatching {
+            val src = context.contentResolver.openInputStream(uri)!!.use {
+                android.graphics.BitmapFactory.decodeStream(it)
+            }
+            val size = 128  // small circular avatar per spec change
+            val scaled = android.graphics.Bitmap.createScaledBitmap(src, size, size, true)
+            val out = java.io.ByteArrayOutputStream()
+            scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
+            val part = okhttp3.MultipartBody.Part.createFormData(
+                "file", "avatar.jpg", out.toByteArray().toRequestBody("image/jpeg".toMediaType()))
+            api.uploadAvatar(part)
+        }.onSuccess { refresh() }
+            .onFailure { error.value = "Avatar upload failed" }
+    }
 }
 
 @Composable
@@ -51,6 +70,7 @@ fun ProfileScreen(
     val profile by vm.profile.collectAsState()
     val error by vm.error.collectAsState()
     val gameConnected by vm.sockets.game.connected.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -58,6 +78,10 @@ fun ProfileScreen(
     ) {
         Text("Profile", style = MaterialTheme.typography.headlineMedium)
 
+        val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+            uri?.let { vm.uploadAvatar(context, it) }
+        }
         when (val p = profile) {
             null -> if (error != null) {
                 Text(error!!, color = MaterialTheme.colorScheme.error)
@@ -66,6 +90,13 @@ fun ProfileScreen(
             else -> {
                 Card {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            com.mdyusufahmed.velocity.ui.tables.Avatar(p.id, p.displayName, 56)
+                            TextButton(onClick = { picker.launch("image/*") }) {
+                                Text("Change photo")
+                            }
+                        }
                         Text(p.displayName, style = MaterialTheme.typography.titleLarge)
                         if (p.vipTier > 0) {
                             Text("VIP${p.vipTier}", color = MaterialTheme.colorScheme.secondary,
@@ -95,9 +126,6 @@ fun ProfileScreen(
                              " · Biggest: ${"%,d".format(p.today.biggestWin)}")
                     }
                 }
-                Text("Profile picture — coming soon",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
