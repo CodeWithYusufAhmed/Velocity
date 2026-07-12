@@ -1,0 +1,12 @@
+# ninja log v5
+38	304	8055436053647473	CMakeFiles/velocity_rnnoise.dir/rnnoise_jni.cpp.o	85c7397402451638
+12	356	8055436054121223	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/rnn_data.c.o	3a19e714b707e122
+16	109	8055436355515660	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/celt_lpc.c.o	63521c1f34ac4da1
+33	143	8055436355820987	CMakeFiles/velocity_rnnoise.dir/rnnoise_jni.cpp.o	3ab4a5503c9be6a0
+27	171	8055436356147937	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/rnn_data.c.o	1298c07e67ef58b
+9	199	8055436356358441	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/rnn.c.o	40b22bf63b23a11c
+21	219	8055436356564914	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/pitch.c.o	6432e6821b5f1a56
+3	275	8055436357124834	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/denoise.c.o	38f27ae9fe7f85a
+40	306	8055436357425263	CMakeFiles/velocity_rnnoise.dir/rnnoise/src/kiss_fft.c.o	84178e059d84493b
+306	452	8055436358923293	D:/Google/Android-App-Voice-Games/velocity/android/app/build/intermediates/cxx/RelWithDebInfo/5z293x17/obj/arm64-v8a/libvelocity_rnnoise.so	6a5fe91b3897895b
+3	102	8055436817397074	D:/Google/Android-App-Voice-Games/velocity/android/app/build/intermediates/cxx/RelWithDebInfo/5z293x17/obj/arm64-v8a/libvelocity_rnnoise.so	6a5fe91b3897895b

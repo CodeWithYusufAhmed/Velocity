@@ -41,6 +41,7 @@ data class RoomUiState(
 class TableRoomViewModel @Inject constructor(
     private val api: VelocityApi,
     private val sockets: SocketManager,
+    private val tokens: com.mdyusufahmed.velocity.data.TokenStore,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -75,9 +76,21 @@ class TableRoomViewModel @Inject constructor(
         viewModelScope.launch { sockets.social.messages.collect(::onSocial) }
     }
 
+    private val rnnoise = com.mdyusufahmed.velocity.voice.RNNoiseProcessor()
+
     private suspend fun connectVoice(url: String, token: String) {
         try {
-            val r = LiveKit.create(appContext)
+            rnnoise.enabled = tokens.studioNoiseNow()
+            val r = LiveKit.create(
+                appContext,
+                overrides = io.livekit.android.LiveKitOverrides(
+                    audioOptions = io.livekit.android.AudioOptions(
+                        audioProcessorOptions = io.livekit.android.audio.AudioProcessorOptions(
+                            capturePostProcessor = rnnoise,
+                        ),
+                    ),
+                ),
+            )
             r.connect(url, token)
             r.localParticipant.setMicrophoneEnabled(false)  // listener until seated
             room = r
@@ -216,6 +229,7 @@ class TableRoomViewModel @Inject constructor(
 
     override fun onCleared() {
         room?.disconnect()
+        rnnoise.release()
         com.mdyusufahmed.velocity.voice.VoiceService.stop(appContext)
     }
 

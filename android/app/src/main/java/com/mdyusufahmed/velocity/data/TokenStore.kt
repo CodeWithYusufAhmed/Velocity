@@ -34,7 +34,21 @@ class TokenStore @Inject constructor(@ApplicationContext private val context: Co
     fun refreshBlocking(): String? = runBlocking { refresh() }
     fun saveBlocking(access: String, refresh: String) = runBlocking { save(access, refresh) }
 
+    // Studio Noise Removal (RNNoise) preference — device-local.
+    private val studioNoiseKey = stringPreferencesKey("studio_noise")
+    val studioNoise: Flow<Boolean> =
+        context.dataStore.data.map { it[studioNoiseKey] == "on" }
+
+    suspend fun setStudioNoise(on: Boolean) {
+        context.dataStore.edit { it[studioNoiseKey] = if (on) "on" else "off" }
+    }
+
+    suspend fun studioNoiseNow(): Boolean =
+        context.dataStore.data.first()[studioNoiseKey] == "on"
+
     suspend fun clear() {
+        val keep = studioNoiseNow()
         context.dataStore.edit { it.clear() }
+        setStudioNoise(keep)  // logout shouldn't reset audio preferences
     }
 }

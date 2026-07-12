@@ -24,8 +24,8 @@ android {
         applicationId = "com.mdyusufahmed.velocity"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
         // Dev server. 10.0.2.2 = host machine from the Android emulator.
         // For a real phone on the same Wi-Fi, change to the PC's LAN IP.
         buildConfigField("String", "SERVER_BASE_URL", "\"http://10.0.2.2:8000\"")
@@ -67,6 +67,13 @@ android {
         compose = true
         buildConfig = true
     }
+
+    // RNNoise native lib (Studio Noise Removal)
+    ndkVersion = "27.0.12077973"
+    externalNativeBuild {
+        cmake { path = file("src/main/cpp/CMakeLists.txt") }
+    }
+    defaultConfig.ndk.abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 }
 
 dependencies {

@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "D:\\Google\\Android-App-Voice-Games\\velocity\\android\\app\\src\\main\\cpp\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\Yusuf\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "D:\\Google\\Android-App-Voice-Games\\velocity\\android\\app\\.cxx\\RelWithDebInfo\\5z293x17\\x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\Yusuf\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "D:\\Google\\Android-App-Voice-Games\\velocity\\android\\app\\.cxx\\RelWithDebInfo\\5z293x17\\x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "velocity_rnnoise::@6890427a1f51a3e7e1df": {
+      "artifactName": "velocity_rnnoise",
+      "abi": "x86_64",
+      "output": "D:\\Google\\Android-App-Voice-Games\\velocity\\android\\app\\build\\intermediates\\cxx\\RelWithDebInfo\\5z293x17\\obj\\x86_64\\libvelocity_rnnoise.so",
+      "runtimeFiles": []
+    }
+  }
+}

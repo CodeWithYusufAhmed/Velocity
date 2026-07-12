@@ -27,10 +27,22 @@ data class SettingsUiState(
 )
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val api: VelocityApi) : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val api: VelocityApi,
+    private val tokens: com.mdyusufahmed.velocity.data.TokenStore,
+) : ViewModel() {
     val state = MutableStateFlow(SettingsUiState())
+    val studioNoise = MutableStateFlow(false)
 
-    init { refresh() }
+    fun setStudioNoise(on: Boolean) = viewModelScope.launch {
+        tokens.setStudioNoise(on)
+        studioNoise.value = on
+    }
+
+    init {
+        refresh()
+        viewModelScope.launch { tokens.studioNoise.collect { studioNoise.value = it } }
+    }
 
     fun refresh() = viewModelScope.launch {
         runCatching { api.profile() }
@@ -93,14 +105,15 @@ fun SettingsScreen(vm: SettingsViewModel = hiltViewModel()) {
                 Text("Voice", style = MaterialTheme.typography.titleMedium)
                 Text("Noise cancellation, echo cancellation and auto gain are always ON " +
                      "(WebRTC built-ins).", style = MaterialTheme.typography.bodySmall)
-                var studio by remember { mutableStateOf(false) }
+                val studio by vm.studioNoise.collectAsState()
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()) {
                     Text("Studio Noise Removal (RNNoise)", style = MaterialTheme.typography.bodyMedium)
-                    Switch(checked = studio, onCheckedChange = { studio = it }, enabled = false)
+                    Switch(checked = studio, onCheckedChange = vm::setStudioNoise)
                 }
-                Text("Coming in a free update — needs a native audio processor.",
+                Text("Deep-learning noise removal on your mic (experimental). " +
+                     "Takes effect the next time you join a Table.",
                     style = MaterialTheme.typography.labelSmall)
             }
         }
