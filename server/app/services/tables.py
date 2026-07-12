@@ -123,6 +123,11 @@ async def create_table(session: AsyncSession, owner: User, name: str,
                        topic: str | None, chair_count: int) -> Table:
     if chair_count not in (8, 10, 12):
         raise TableError("Chair count must be 8, 10 or 12")
+    # One open table per user: keeps the list tidy and abuse-free.
+    existing = await session.scalar(select(Table).where(
+        Table.owner_id == owner.id, Table.status == "open"))
+    if existing:
+        raise TableError("You already have an open Table — close it first", 409)
     open_count = len(hub.rooms)
     if open_count >= await _cap(session, "max_tables", get_settings().max_tables):
         raise TableError("Server is at its table capacity right now", 503)

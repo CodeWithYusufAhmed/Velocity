@@ -49,8 +49,11 @@ class ProfileViewModel @Inject constructor(
             val src = context.contentResolver.openInputStream(uri)!!.use {
                 android.graphics.BitmapFactory.decodeStream(it)
             }
-            val size = 128  // small circular avatar per spec change
-            val scaled = android.graphics.Bitmap.createScaledBitmap(src, size, size, true)
+            // Center-crop to a square first so faces aren't squashed, then scale.
+            val side = minOf(src.width, src.height)
+            val square = android.graphics.Bitmap.createBitmap(
+                src, (src.width - side) / 2, (src.height - side) / 2, side, side)
+            val scaled = android.graphics.Bitmap.createScaledBitmap(square, 256, 256, true)
             val out = java.io.ByteArrayOutputStream()
             scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
             val part = okhttp3.MultipartBody.Part.createFormData(
@@ -65,6 +68,7 @@ class ProfileViewModel @Inject constructor(
 fun ProfileScreen(
     onOpenSettings: () -> Unit,
     onOpenAbout: () -> Unit,
+    onOpenModerator: () -> Unit = {},
     vm: ProfileViewModel = hiltViewModel(),
 ) {
     val profile by vm.profile.collectAsState()
@@ -152,6 +156,11 @@ fun ProfileScreen(
                     else MaterialTheme.colorScheme.error,
         )
 
+        if (profile?.isModerator == true) {
+            Button(onClick = onOpenModerator, modifier = Modifier.fillMaxWidth()) {
+                Text("🛡️ Moderator panel")
+            }
+        }
         OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth()) { Text("Settings") }
         OutlinedButton(onClick = onOpenAbout, modifier = Modifier.fillMaxWidth()) { Text("About & odds") }
         TextButton(onClick = vm::logout, modifier = Modifier.fillMaxWidth()) { Text("Log out") }

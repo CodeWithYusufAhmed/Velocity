@@ -33,8 +33,8 @@ import com.mdyusufahmed.velocity.ui.tables.TablesScreen
 import com.mdyusufahmed.velocity.ui.settings.SettingsScreen
 
 enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
+    Tables("tables", R.string.tab_tables, Icons.Filled.RecordVoiceOver),  // first: social home
     Game("game", R.string.tab_game, Icons.Filled.Casino),
-    Tables("tables", R.string.tab_tables, Icons.Filled.RecordVoiceOver),
     Friends("friends", R.string.tab_friends, Icons.Filled.Group),
     Profile("profile", R.string.tab_profile, Icons.Filled.Person),
 }
@@ -70,7 +70,7 @@ fun VelocityApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Tab.Game.route,
+            startDestination = Tab.Tables.route,
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Tab.Game.route) { GameScreen() }
@@ -98,10 +98,15 @@ fun VelocityApp() {
                 ProfileScreen(
                     onOpenSettings = { navController.navigate("settings") },
                     onOpenAbout = { navController.navigate("about") },
+                    onOpenModerator = { navController.navigate("moderator") },
                 )
             }
             composable("settings") { SettingsScreen() }
             composable("about") { AboutScreen() }
+            composable("moderator") {
+                com.mdyusufahmed.velocity.ui.mod.ModeratorScreen(
+                    onBack = { navController.popBackStack() })
+            }
         }
     }
 }

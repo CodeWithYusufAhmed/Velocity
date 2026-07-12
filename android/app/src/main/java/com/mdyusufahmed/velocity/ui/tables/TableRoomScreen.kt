@@ -82,8 +82,14 @@ fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text("${s.members.size} in the room", style = MaterialTheme.typography.labelSmall)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 TextButton(onClick = { vm.openGifts(true) }) { Text("🎁") }
+                if (s.myRole in listOf("owner", "admin")) {
+                    TextButton(onClick = vm::openBanned) { Text("⛔") }
+                }
+                if (s.myRole == "owner") {
+                    TextButton(onClick = vm::closeTable) { Text("Close") }
+                }
                 TextButton(onClick = { vm.leave(); onExit() }) { Text("Leave") }
             }
         }
@@ -119,14 +125,27 @@ fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
                                     else -> MaterialTheme.colorScheme.outlineVariant
                                 }, CircleShape)
                             .combinedClickable(
-                                onClick = { if (occupant == null) vm.tapChair(pos)
-                                            else if (occupant.id == s.chairs[s.seated]) vm.tapChair(pos) },
+                                // Single tap: empty chair = sit; my chair = stand;
+                                // someone else = open their options (Yusuf's rule #8).
+                                onClick = {
+                                    when {
+                                        occupant == null -> vm.tapChair(pos)
+                                        s.seated == pos -> vm.tapChair(pos)
+                                        else -> menuFor = occupant
+                                    }
+                                },
                                 onLongClick = { occupant?.let { menuFor = it } },
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (occupant != null) Avatar(occupant.id, occupant.displayName, 60, occupant.hasAvatar)
                         else Text("＋", color = MaterialTheme.colorScheme.outline)
+                        if (occupant?.muted == true) {
+                            Text("🔇", modifier = Modifier.align(Alignment.TopEnd)
+                                .background(androidx.compose.ui.graphics.Color(0xAAF85149), CircleShape)
+                                .padding(2.dp),
+                                style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                     Text(occupant?.displayName ?: "", maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -192,6 +211,27 @@ fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
                         Text("has entered the table!", textAlign = TextAlign.Center)
                     }
                 }
+            }
+        }
+    }
+
+    // Banned users sheet (owner/admin; unban is owner-only, server-enforced)
+    val banned by vm.bannedList.collectAsState()
+    banned?.let { list ->
+        ModalBottomSheet(onDismissRequest = vm::closeBanned) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Blocked from this Table", style = MaterialTheme.typography.titleLarge)
+                if (list.isEmpty()) Text("Nobody is blocked. 🎉")
+                list.forEach { b ->
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(b.displayName)
+                        if (s.myRole == "owner") {
+                            Button(onClick = { vm.unbanFromTable(b.userId) }) { Text("Unban") }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
             }
         }
     }

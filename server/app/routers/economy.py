@@ -29,6 +29,7 @@ async def profile(
     return {
         "id": user.id, "email": user.email, "display_name": user.display_name,
         "balance": user.balance,
+        "is_moderator": user.is_moderator,
         "vip_tier": tier,
         "money_not_spent": mns,
         "today": {

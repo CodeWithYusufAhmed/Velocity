@@ -172,9 +172,21 @@ private fun Wheel(s: GameUiState, onSlotTap: (Int) -> Unit, modifier: Modifier =
         val winner = s.result?.winningPosition
         if (s.phase == "SPINNING") {
             sweep.snapTo(0f)
-            sweep.animateTo(360f * 4, tween(2600, easing = CubicBezierEasing(0.1f, 0.7f, 0.2f, 1f)))
+            // Keep spinning at speed while the server holds the reveal.
+            sweep.animateTo(360f * 4, tween(2900, easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f)))
         } else if (winner != null) {
-            sweep.snapTo(CLOCK_ANGLE[winner] ?: 0f)
+            val target = CLOCK_ANGLE[winner] ?: 0f
+            val current = ((sweep.value % 360f) + 360f) % 360f
+            val delta = ((target - current) + 360f) % 360f
+            if (winner == 3) {
+                // Nissan drama: an extra burst of speed, then a long clockwise
+                // deceleration that settles at the very last second.
+                sweep.animateTo(sweep.value + 1080f + delta,
+                    tween(2400, easing = CubicBezierEasing(0.45f, 0f, 0.15f, 1f)))
+            } else {
+                sweep.animateTo(sweep.value + 360f + delta,
+                    tween(1200, easing = CubicBezierEasing(0.2f, 0.6f, 0.2f, 1f)))
+            }
         }
     }
     val highlightAngle = ((sweep.value % 360f) + 360f) % 360f
@@ -202,7 +214,7 @@ private fun Wheel(s: GameUiState, onSlotTap: (Int) -> Unit, modifier: Modifier =
             (0..7).forEach { pos ->
                 val slot = s.odds.getOrNull(pos)
                 val angle = CLOCK_ANGLE[pos] ?: 0f
-                val active = s.phase == "SPINNING" &&
+                val active = (s.phase == "SPINNING" || s.result != null) &&
                     angleDistance(angle, highlightAngle) < 22.5f
                 val betOn = (s.myBets[pos] ?: 0L) > 0L
                 Box {
@@ -264,7 +276,23 @@ private val WinGreen = androidx.compose.ui.graphics.Color(0xFF3FB950)
 
 @Composable
 private fun ResultOverlay(r: SpinResult, onDismiss: () -> Unit) {
-    LaunchedEffect(r) { kotlinx.coroutines.delay(3000); onDismiss() }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(r) {
+        // Original synthesized sounds — no real car audio (trademark caution).
+        runCatching {
+            android.media.MediaPlayer.create(context, com.mdyusufahmed.velocity.R.raw.win_engine)
+                ?.apply { setOnCompletionListener { it.release() }; start() }
+        }
+        if (r.myPayout > 0) {
+            kotlinx.coroutines.delay(500)
+            runCatching {
+                android.media.MediaPlayer.create(context, com.mdyusufahmed.velocity.R.raw.win_coins)
+                    ?.apply { setOnCompletionListener { it.release() }; start() }
+            }
+        }
+        kotlinx.coroutines.delay(2500)
+        onDismiss()
+    }
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = RoundedCornerShape(20.dp)) {
             Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally,

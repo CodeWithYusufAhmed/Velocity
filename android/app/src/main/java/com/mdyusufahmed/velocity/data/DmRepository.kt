@@ -18,7 +18,30 @@ import javax.inject.Singleton
 class DmRepository @Inject constructor(
     private val dao: MessageDao,
     private val sockets: SocketManager,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) {
+
+    private fun notify(title: String, text: String, id: Int) {
+        // System notification with default sound — like any messenger.
+        val nm = context.getSystemService(android.app.NotificationManager::class.java)
+        val channelId = "velocity_social"
+        if (nm.getNotificationChannel(channelId) == null) {
+            nm.createNotificationChannel(android.app.NotificationChannel(
+                channelId, "Messages & friends",
+                android.app.NotificationManager.IMPORTANCE_HIGH))
+        }
+        val tap = android.app.PendingIntent.getActivity(context, 0,
+            android.content.Intent(context, com.mdyusufahmed.velocity.MainActivity::class.java),
+            android.app.PendingIntent.FLAG_IMMUTABLE)
+        runCatching {
+            nm.notify(id, androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(com.mdyusufahmed.velocity.R.drawable.ic_launcher_foreground)
+                .setContentTitle(title).setContentText(text)
+                .setContentIntent(tap).setAutoCancel(true)
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                .build())
+        }
+    }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val pendingRefs = mutableMapOf<String, Long>()  // client_ref -> row id
     private var refCounter = 0L
@@ -30,12 +53,24 @@ class DmRepository @Inject constructor(
         scope.launch {
             sockets.social.messages.collect { msg ->
                 when (msg["type"]?.jsonPrimitive?.contentOrNull) {
-                    "dm_incoming" -> dao.insert(MessageEntity(
-                        peerId = msg["sender_id"]!!.jsonPrimitive.long,
-                        peerName = msg["sender_name"]!!.jsonPrimitive.content,
-                        text = msg["text"]!!.jsonPrimitive.content,
-                        mine = false, sentAt = System.currentTimeMillis(),
-                        state = "delivered"))
+                    "dm_incoming" -> {
+                        val senderId = msg["sender_id"]!!.jsonPrimitive.long
+                        val senderName = msg["sender_name"]!!.jsonPrimitive.content
+                        val text = msg["text"]!!.jsonPrimitive.content
+                        dao.insert(MessageEntity(
+                            peerId = senderId, peerName = senderName, text = text,
+                            mine = false, sentAt = System.currentTimeMillis(),
+                            state = "delivered"))
+                        notify(senderName, text, senderId.toInt())
+                    }
+                    "friend_request" -> notify(
+                        "Friend request",
+                        "${msg["sender_name"]?.jsonPrimitive?.contentOrNull ?: "Someone"} wants to be your friend",
+                        -1)
+                    "friend_accepted" -> notify(
+                        "Friend request accepted",
+                        "${msg["display_name"]?.jsonPrimitive?.contentOrNull ?: "Someone"} accepted your request",
+                        -2)
                     "dm_delivered" -> {
                         val ref = msg["client_ref"]?.jsonPrimitive?.contentOrNull ?: return@collect
                         val rowId = pendingRefs.remove(ref) ?: return@collect

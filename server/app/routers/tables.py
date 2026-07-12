@@ -55,8 +55,7 @@ async def create_table(request: Request, body: CreateTableRequest,
 @router.get("")
 async def list_tables(session: AsyncSession = Depends(get_session),
                       user: User = Depends(get_current_user)):
-    rows = (await session.scalars(select(Table).where(Table.status == "open")
-                                  .order_by(Table.created_at.desc()))).all()
+    rows = (await session.scalars(select(Table).where(Table.status == "open"))).all()
     out = []
     for t in rows:
         room = svc.hub.room(t.id)
@@ -65,6 +64,8 @@ async def list_tables(session: AsyncSession = Depends(get_session),
             "member_count": len(room.members) if room else 0,
             "speakers": len(room.chairs) if room else 0,
         })
+    # Busiest tables first (Yusuf's ranking rule), newest as tiebreaker.
+    out.sort(key=lambda x: (-x["member_count"], -x["id"]))
     return out
 
 
@@ -97,8 +98,48 @@ async def members(table_id: int, user: User = Depends(get_current_user),
             "vip_tier": await vip.active_tier(session, u.id),
             "chair": seated.get(u.id),
             "has_avatar": u.avatar is not None,
+            "muted": u.id in (room.muted if room else set()),
         })
     return out
+
+
+@router.get("/{table_id}/blocks")
+async def list_blocks(table_id: int, user: User = Depends(get_current_user),
+                      session: AsyncSession = Depends(get_session)):
+    """Owner/admins see who is blocked from this table (for unbanning)."""
+    from app.models import TableBlock
+    t = await session.get(Table, table_id)
+    if t is None:
+        raise HTTPException(404, "Table not found")
+    role = await svc.role_of(session, t, user.id)
+    if role not in ("owner", "admin"):
+        raise HTTPException(403, "Owner or admin only")
+    rows = (await session.scalars(select(TableBlock).where(
+        TableBlock.table_id == table_id))).all()
+    out = []
+    for b in rows:
+        u = await session.get(User, b.user_id)
+        out.append({"user_id": b.user_id,
+                    "display_name": u.display_name if u else "?"})
+    return out
+
+
+@router.delete("/{table_id}/blocks/{target_id}", status_code=204)
+async def unblock_from_table(table_id: int, target_id: int,
+                             user: User = Depends(get_current_user),
+                             session: AsyncSession = Depends(get_session)):
+    """Only the owner lifts a table block (mirrors: only the owner blocks)."""
+    from app.models import TableBlock
+    t = await session.get(Table, table_id)
+    if t is None:
+        raise HTTPException(404, "Table not found")
+    if await svc.role_of(session, t, user.id) != "owner":
+        raise HTTPException(403, "Only the owner can unban")
+    row = await session.scalar(select(TableBlock).where(
+        TableBlock.table_id == table_id, TableBlock.user_id == target_id))
+    if row:
+        await session.delete(row)
+        await session.commit()
 
 
 @router.post("/{table_id}/join")

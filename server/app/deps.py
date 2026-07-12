@@ -23,4 +23,9 @@ async def get_current_user(
     user = await session.get(User, user_id)
     if user is None or user.is_banned:
         raise HTTPException(401, "Invalid or expired token")
+    if user.banned_until is not None:
+        from datetime import datetime, timezone
+        if user.banned_until > datetime.now(timezone.utc):
+            mins = int((user.banned_until - datetime.now(timezone.utc)).total_seconds() // 60) + 1
+            raise HTTPException(403, f"You are temporarily banned ({mins} min left)")
     return user

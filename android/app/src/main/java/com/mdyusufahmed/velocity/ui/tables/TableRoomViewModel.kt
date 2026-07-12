@@ -156,6 +156,28 @@ class TableRoomViewModel @Inject constructor(
         }
     }
 
+    val bannedList = MutableStateFlow<List<BlockedUserDto>?>(null)  // non-null = sheet open
+
+    fun openBanned() = viewModelScope.launch {
+        runCatching { api.tableBlocks(state.value.tableId) }
+            .onSuccess { bannedList.value = it }
+            .onFailure { state.value = state.value.copy(notice = "Owner or admin only") }
+    }
+
+    fun unbanFromTable(userId: Long) = viewModelScope.launch {
+        runCatching { api.tableUnblock(state.value.tableId, userId) }
+            .onSuccess { bannedList.value = bannedList.value?.filter { it.userId != userId } }
+            .onFailure { state.value = state.value.copy(notice = "Only the owner can unban") }
+    }
+
+    fun closeBanned() { bannedList.value = null }
+
+    fun closeTable() = viewModelScope.launch {
+        runCatching { api.closeTable(state.value.tableId) }
+            .onSuccess { state.value = state.value.copy(closed = true) }
+            .onFailure { state.value = state.value.copy(notice = "Only the owner can close") }
+    }
+
     fun openGifts(open: Boolean) { state.value = state.value.copy(giftSheet = open) }
     fun dismissNotice() { state.value = state.value.copy(notice = null) }
     fun dismissWelcome() { state.value = state.value.copy(welcome = null) }

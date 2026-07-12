@@ -20,10 +20,14 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var auth: AuthRepository
     @Inject lateinit var sockets: SocketManager
+    @Inject lateinit var dms: com.mdyusufahmed.velocity.data.DmRepository  // eager: DM notifications
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
         setContent {
             VelocityTheme {
                 val loggedIn by auth.isLoggedIn.collectAsState(initial = null)

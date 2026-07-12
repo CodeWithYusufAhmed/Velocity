@@ -48,7 +48,8 @@ import retrofit2.http.Query
     @SerialName("vip_tier") val vipTier: Int,
     @SerialName("money_not_spent") val moneyNotSpent: MoneyNotSpent,
     val today: TodayStats,
-    @SerialName("daily_round_limit") val dailyRoundLimit: Int? = null)
+    @SerialName("daily_round_limit") val dailyRoundLimit: Int? = null,
+    @SerialName("is_moderator") val isModerator: Boolean = false)
 
 @Serializable data class RoundLimitRequest(val limit: Int? = null)
 @Serializable data class RoundLimitResponse(
@@ -81,7 +82,17 @@ import retrofit2.http.Query
 @Serializable data class MemberDto(
     val id: Long, @SerialName("display_name") val displayName: String,
     val role: String, @SerialName("vip_tier") val vipTier: Int,
-    val chair: Int? = null, @SerialName("has_avatar") val hasAvatar: Boolean = false)
+    val chair: Int? = null, @SerialName("has_avatar") val hasAvatar: Boolean = false,
+    val muted: Boolean = false)
+@Serializable data class BlockedUserDto(
+    @SerialName("user_id") val userId: Long,
+    @SerialName("display_name") val displayName: String)
+@Serializable data class GiftVipRequest(@SerialName("user_id") val userId: Long, val tier: Int)
+@Serializable data class GiftCoinsRequest(@SerialName("user_id") val userId: Long, val amount: Long)
+@Serializable data class BanRequest(@SerialName("user_id") val userId: Long, val minutes: Int? = null)
+@Serializable data class ModReport(
+    val id: Long, val reporter: String, val reported: String,
+    @SerialName("reported_id") val reportedId: Long, val reason: String, val note: String? = null)
 @Serializable data class TargetRequest(@SerialName("user_id") val userId: Long)
 @Serializable data class SitRequest(val position: Int)
 @Serializable data class ReportRequest(
@@ -146,6 +157,17 @@ interface VelocityApi {
     @DELETE("friends/{id}") suspend fun unfriend(@Path("id") id: Long)
     @GET("friends/search") suspend fun searchUsers(@Query("q") q: String): List<SearchResult>
     @GET("rounds/{id}/verify") suspend fun verifyRound(@Path("id") id: Long): VerifyResponse
+
+    @GET("tables/{id}/blocks") suspend fun tableBlocks(@Path("id") id: Long): List<BlockedUserDto>
+    @DELETE("tables/{id}/blocks/{uid}") suspend fun tableUnblock(@Path("id") id: Long, @Path("uid") uid: Long)
+    @DELETE("tables/{id}") suspend fun closeTable(@Path("id") id: Long)
+
+    @POST("mod/gift-vip") suspend fun modGiftVip(@Body body: GiftVipRequest): kotlinx.serialization.json.JsonObject
+    @POST("mod/gift-coins") suspend fun modGiftCoins(@Body body: GiftCoinsRequest): kotlinx.serialization.json.JsonObject
+    @POST("mod/ban") suspend fun modBan(@Body body: BanRequest): kotlinx.serialization.json.JsonObject
+    @POST("mod/unban/{uid}") suspend fun modUnban(@Path("uid") uid: Long): kotlinx.serialization.json.JsonObject
+    @GET("mod/reports") suspend fun modReports(): List<ModReport>
+    @POST("mod/reports/{id}/resolve") suspend fun modResolveReport(@Path("id") id: Long)
 }
 
 @Serializable data class VerifyResponse(

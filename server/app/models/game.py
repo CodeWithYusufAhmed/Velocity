@@ -36,6 +36,9 @@ class User(Base, IdMixin, CreatedAtMixin):
     avatar_mime: Mapped[str | None] = mapped_column(String(32))
     is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_banned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # In-app moderator (Velocity owner): gifts VIP/coins, timed bans, sees reports.
+    is_moderator: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    banned_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     __table_args__ = (CheckConstraint("balance >= 0", name="ck_users_balance_nonneg"),)
 
