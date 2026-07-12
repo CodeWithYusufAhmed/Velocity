@@ -24,8 +24,8 @@ android {
         applicationId = "com.mdyusufahmed.velocity"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
         // Dev server. 10.0.2.2 = host machine from the Android emulator.
         // For a real phone on the same Wi-Fi, change to the PC's LAN IP.
         buildConfigField("String", "SERVER_BASE_URL", "\"http://10.0.2.2:8000\"")

@@ -108,7 +108,9 @@ fun ProfileScreen(
                         }
                         Text(p.email, style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(8.dp))
-                        Text("Balance: ${"%,d".format(p.balance)} coins",
+                        Text(
+                            if (p.isModerator) "Balance: ∞ coins"
+                            else "Balance: ${"%,d".format(p.balance)} coins",
                             style = MaterialTheme.typography.titleMedium)
                     }
                 }

@@ -55,7 +55,8 @@ fun GameScreen(vm: GameViewModel = hiltViewModel()) {
             verticalAlignment = Alignment.CenterVertically) {
             Text("Round #${"%,d".format(s.roundId)}", style = MaterialTheme.typography.labelLarge)
             Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
-                Text("🪙 ${"%,d".format(s.balance)}", color = Amber,
+                Text(if (s.isModerator) "🪙 ∞" else "🪙 ${"%,d".format(s.balance)}",
+                    color = Amber,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
             }
         }

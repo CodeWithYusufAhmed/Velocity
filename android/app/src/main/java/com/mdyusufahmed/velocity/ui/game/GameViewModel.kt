@@ -32,6 +32,7 @@ data class GameUiState(
     val rescueOffered: Boolean = false,
     val rescuesLeft: Int = 0,
     val limitReached: Boolean = false,
+    val isModerator: Boolean = false,
     val moneyNotSpent: Double = 0.0,
     val todayWon: Long = 0,
     val error: String? = null,
@@ -67,6 +68,7 @@ class GameViewModel @Inject constructor(
                 rescueOffered = p.balance < 200 && p.today.rescuesUsed < 3,
                 moneyNotSpent = p.moneyNotSpent.dollarsNotSpent,
                 todayWon = p.today.totalWon,
+                isModerator = p.isModerator,
             )
         }
     }
