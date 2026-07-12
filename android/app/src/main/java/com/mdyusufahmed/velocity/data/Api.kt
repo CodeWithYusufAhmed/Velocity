@@ -69,7 +69,8 @@ import retrofit2.http.Query
 @Serializable data class TableDto(
     val id: Long, val name: String, val topic: String? = null,
     @SerialName("chair_count") val chairCount: Int,
-    @SerialName("member_count") val memberCount: Int = 0, val speakers: Int = 0)
+    @SerialName("member_count") val memberCount: Int = 0, val speakers: Int = 0,
+    @SerialName("owner_id") val ownerId: Long = 0)
 @Serializable data class CreateTableRequest(
     val name: String, val topic: String? = null,
     @SerialName("chair_count") val chairCount: Int)

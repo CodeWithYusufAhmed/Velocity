@@ -24,13 +24,28 @@ import javax.inject.Inject
 class TablesViewModel @Inject constructor(private val api: VelocityApi) : ViewModel() {
     val tables = MutableStateFlow<List<TableDto>>(emptyList())
     val error = MutableStateFlow<String?>(null)
+    val myId = MutableStateFlow(0L)
+    val isModerator = MutableStateFlow(false)
 
-    init { refresh() }
+    init {
+        refresh()
+        viewModelScope.launch {
+            runCatching { api.profile() }.onSuccess {
+                myId.value = it.id; isModerator.value = it.isModerator
+            }
+        }
+    }
 
     fun refresh() = viewModelScope.launch {
         runCatching { api.tables() }
             .onSuccess { tables.value = it; error.value = null }
             .onFailure { error.value = "Could not load tables" }
+    }
+
+    fun deleteTable(id: Long) = viewModelScope.launch {
+        runCatching { api.closeTable(id) }
+            .onSuccess { refresh() }
+            .onFailure { error.value = "Could not delete the table" }
     }
 
     fun create(name: String, topic: String?, chairs: Int, onCreated: (Long) -> Unit) =
@@ -58,22 +73,46 @@ fun TablesScreen(onOpenTable: (Long, String) -> Unit, vm: TablesViewModel = hilt
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             if (tables.isEmpty()) Text("No open tables — start one!",
                 style = MaterialTheme.typography.bodyMedium)
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(tables) { t ->
-                    Card(onClick = { onOpenTable(t.id, t.name) }) {
-                        Row(Modifier.fillMaxWidth().padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Column {
-                                Text(t.name, style = MaterialTheme.typography.titleMedium)
-                                Text((t.topic?.let { "$it · " } ?: "") + "${t.chairCount} chairs",
-                                    style = MaterialTheme.typography.bodySmall)
-                            }
+
+            val me by vm.myId.collectAsState()
+            val isMod by vm.isModerator.collectAsState()
+            val mine = tables.filter { it.ownerId == me }
+            val others = tables.filter { it.ownerId != me }
+
+            @Composable
+            fun tableCard(t: TableDto, canDelete: Boolean) {
+                Card(onClick = { onOpenTable(t.id, t.name) }) {
+                    Row(Modifier.fillMaxWidth().padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(t.name, style = MaterialTheme.typography.titleMedium)
+                            Text((t.topic?.let { "$it · " } ?: "") + "${t.chairCount} chairs",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
                             Text("● ${t.memberCount} in · ${t.speakers} on mic",
                                 color = Amber, style = MaterialTheme.typography.labelSmall)
+                            if (canDelete) {
+                                TextButton(onClick = { vm.deleteTable(t.id) },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.error)) {
+                                    Text("Delete")
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (mine.isNotEmpty()) {
+                    item { Text("My Table", style = MaterialTheme.typography.titleMedium,
+                        color = Amber) }
+                    items(mine) { t -> tableCard(t, canDelete = true) }
+                    item { Text("All Tables", style = MaterialTheme.typography.titleMedium) }
+                }
+                items(others) { t -> tableCard(t, canDelete = isMod) }
             }
         }
     }

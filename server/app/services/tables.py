@@ -266,9 +266,16 @@ async def grant_admin(session: AsyncSession, table_id: int, actor_id: int,
 
 async def close_table(session: AsyncSession, table_id: int, actor_id: int) -> None:
     t = await get_open_table(session, table_id)
-    if permissions.can_close_table(await role_of(session, t, actor_id)) != "ok":
+    actor = await session.get(User, actor_id)
+    is_mod = actor is not None and actor.is_moderator
+    if not is_mod and permissions.can_close_table(await role_of(session, t, actor_id)) != "ok":
         raise TableError("Only the owner can close the Table", 403)
     t.status, t.closed_at = "closed", datetime.now(timezone.utc)
+    if is_mod and actor_id != t.owner_id:
+        from app.models import AdminAudit
+        session.add(AdminAudit(admin_id=actor_id, action="mod_close_table",
+                               target_user_id=t.owner_id,
+                               detail=f"table {t.id} ({t.name})"))
     await session.commit()
     hub.rooms.pop(table_id, None)
 

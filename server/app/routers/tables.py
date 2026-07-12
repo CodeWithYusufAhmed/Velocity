@@ -63,6 +63,7 @@ async def list_tables(session: AsyncSession = Depends(get_session),
             "id": t.id, "name": t.name, "topic": t.topic, "chair_count": t.chair_count,
             "member_count": len(room.members) if room else 0,
             "speakers": len(room.chairs) if room else 0,
+            "owner_id": t.owner_id,
         })
     # Busiest tables first (Yusuf's ranking rule), newest as tiebreaker.
     out.sort(key=lambda x: (-x["member_count"], -x["id"]))
