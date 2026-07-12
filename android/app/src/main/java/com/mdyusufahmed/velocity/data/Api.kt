@@ -90,6 +90,10 @@ import retrofit2.http.Query
 @Serializable data class GiftVipRequest(@SerialName("user_id") val userId: Long, val tier: Int)
 @Serializable data class GiftCoinsRequest(@SerialName("user_id") val userId: Long, val amount: Long)
 @Serializable data class BanRequest(@SerialName("user_id") val userId: Long, val minutes: Int? = null)
+@Serializable data class ModVip(
+    @SerialName("user_id") val userId: Long,
+    @SerialName("display_name") val displayName: String,
+    val tier: Int, @SerialName("expires_at") val expiresAt: String)
 @Serializable data class ModReport(
     val id: Long, val reporter: String, val reported: String,
     @SerialName("reported_id") val reportedId: Long, val reason: String, val note: String? = null)
@@ -167,6 +171,8 @@ interface VelocityApi {
     @POST("mod/ban") suspend fun modBan(@Body body: BanRequest): kotlinx.serialization.json.JsonObject
     @POST("mod/unban/{uid}") suspend fun modUnban(@Path("uid") uid: Long): kotlinx.serialization.json.JsonObject
     @GET("mod/reports") suspend fun modReports(): List<ModReport>
+    @GET("mod/vips") suspend fun modVips(): List<ModVip>
+    @DELETE("mod/vips/{uid}") suspend fun modRemoveVip(@Path("uid") uid: Long)
     @POST("mod/reports/{id}/resolve") suspend fun modResolveReport(@Path("id") id: Long)
 }
 

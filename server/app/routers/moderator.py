@@ -105,6 +105,29 @@ async def unban(user_id: int, mod: User = Depends(require_moderator),
     return {"unbanned": True}
 
 
+@router.get("/vips")
+async def active_vips(mod: User = Depends(require_moderator),
+                      session: AsyncSession = Depends(get_session)):
+    now = datetime.now(timezone.utc)
+    rows = (await session.execute(
+        select(User.id, User.display_name, VipStatus.tier, VipStatus.expires_at)
+        .join(VipStatus, VipStatus.user_id == User.id)
+        .where(VipStatus.expires_at > now)
+        .order_by(VipStatus.tier.desc()))).all()
+    return [{"user_id": uid, "display_name": name, "tier": tier,
+             "expires_at": exp.isoformat()} for uid, name, tier, exp in rows]
+
+
+@router.delete("/vips/{user_id}", status_code=204)
+async def remove_vip(user_id: int, mod: User = Depends(require_moderator),
+                     session: AsyncSession = Depends(get_session)):
+    status = await session.get(VipStatus, user_id)
+    if status:
+        await session.delete(status)
+        _audit(session, mod, "remove_vip", user_id)
+        await session.commit()
+
+
 @router.get("/reports")
 async def reports(mod: User = Depends(require_moderator),
                   session: AsyncSession = Depends(get_session)):

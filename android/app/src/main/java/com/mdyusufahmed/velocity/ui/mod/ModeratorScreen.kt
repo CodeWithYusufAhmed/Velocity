@@ -24,9 +24,20 @@ import javax.inject.Inject
 class ModViewModel @Inject constructor(private val api: VelocityApi) : ViewModel() {
     val results = MutableStateFlow<List<SearchResult>>(emptyList())
     val reports = MutableStateFlow<List<ModReport>>(emptyList())
+    val vips = MutableStateFlow<List<ModVip>>(emptyList())
     val notice = MutableStateFlow<String?>(null)
 
-    init { loadReports() }
+    init { loadReports(); loadVips() }
+
+    fun loadVips() = viewModelScope.launch {
+        runCatching { api.modVips() }.onSuccess { vips.value = it }
+    }
+
+    fun removeVip(userId: Long) = viewModelScope.launch {
+        runCatching { api.modRemoveVip(userId) }
+            .onSuccess { notice.value = "VIP removed"; loadVips() }
+            .onFailure { notice.value = "Failed to remove VIP" }
+    }
 
     fun search(q: String) = viewModelScope.launch {
         if (q.length < 2) { results.value = emptyList(); return@launch }
@@ -121,6 +132,28 @@ fun ModeratorScreen(onBack: () -> Unit, vm: ModViewModel = hiltViewModel()) {
                 }
             }
         }
+
+        val vips by vm.vips.collectAsState()
+        Text("Active VIPs (${vips.size})", style = MaterialTheme.typography.titleMedium)
+        vips.forEach { v ->
+            Card {
+                Row(Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("${v.displayName} — VIP${v.tier}", color = Amber,
+                            style = MaterialTheme.typography.bodyMedium)
+                        Text("until ${v.expiresAt.take(16).replace('T', ' ')} UTC",
+                            style = MaterialTheme.typography.labelSmall)
+                    }
+                    TextButton(onClick = { vm.removeVip(v.userId) },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error)) { Text("Remove") }
+                }
+            }
+        }
+        if (vips.isEmpty()) Text("Nobody has VIP right now.",
+            style = MaterialTheme.typography.bodySmall)
 
         Text("Open reports (${reports.size})", style = MaterialTheme.typography.titleMedium)
         reports.forEach { r ->
