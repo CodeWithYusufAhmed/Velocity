@@ -62,10 +62,13 @@ fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
     var chatInput by remember { mutableStateOf("") }
     var menuFor by remember { mutableStateOf<MemberDto?>(null) }
 
-    val micPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()) { }
+    val permissions = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()) { }
     LaunchedEffect(tableId) {
-        micPermission.launch(Manifest.permission.RECORD_AUDIO)
+        val wanted = mutableListOf(Manifest.permission.RECORD_AUDIO)
+        if (android.os.Build.VERSION.SDK_INT >= 33)
+            wanted += Manifest.permission.POST_NOTIFICATIONS  // the "in a Table" notification
+        permissions.launch(wanted.toTypedArray())
         vm.join(tableId)
     }
     LaunchedEffect(s.closed) { if (s.closed) { vm.leave(); onExit() } }

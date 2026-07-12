@@ -58,6 +58,7 @@ class TableRoomViewModel @Inject constructor(
                     myRole = j.role, myVip = j.vipTier, chairCount = j.chairCount,
                     chairs = j.chairs.mapKeys { it.key.toInt() })
                 connectVoice(j.livekitUrl, j.livekitToken)
+                com.mdyusufahmed.velocity.voice.VoiceService.start(appContext, "Table")
                 refreshMembers()
             } catch (e: HttpException) {
                 state.value = state.value.copy(
@@ -163,10 +164,14 @@ class TableRoomViewModel @Inject constructor(
         runCatching { api.leaveTable(state.value.tableId) }
         room?.disconnect()
         room = null
+        com.mdyusufahmed.velocity.voice.VoiceService.stop(appContext)
         state.value = RoomUiState()
     }
 
-    override fun onCleared() { room?.disconnect() }
+    override fun onCleared() {
+        room?.disconnect()
+        com.mdyusufahmed.velocity.voice.VoiceService.stop(appContext)
+    }
 
     private fun onSocial(msg: JsonObject) {
         val s = state.value

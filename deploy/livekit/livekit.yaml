@@ -1,15 +1,13 @@
-# LiveKit development config. Production values (real keys, TURN, external IP)
-# are set in M13. Keys here are DEV ONLY and must be replaced before deploy.
+# LiveKit production config (Windows host, media via router UDP forward)
 port: 7880
 rtc:
   tcp_port: 7881
   port_range_start: 50000
   port_range_end: 50100
-  use_external_ip: false
+  use_external_ip: true
 redis:
   address: redis:6379
 keys:
-  # DEV ONLY — replace in production (M13); never ship these in the app.
-  devkey: devsecret_change_me_before_production_0000
+  velocity_prod: ff4f5039e4f63e33f69653d282d2ed24e4148912f8e8f8b2502b773688e81f10
 logging:
   level: info
