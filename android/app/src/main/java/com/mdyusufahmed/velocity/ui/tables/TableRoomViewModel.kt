@@ -34,6 +34,7 @@ data class RoomUiState(
     val giftSheet: Boolean = false,
     val notice: String? = null,
     val closed: Boolean = false,
+    val isModerator: Boolean = false,
 )
 
 @HiltViewModel
@@ -51,7 +52,10 @@ class TableRoomViewModel @Inject constructor(
         if (state.value.tableId == tableId) return
         state.value = RoomUiState(tableId = tableId)
         viewModelScope.launch {
-            runCatching { api.profile() }.onSuccess { myId = it.id }
+            runCatching { api.profile() }.onSuccess {
+                myId = it.id
+                state.value = state.value.copy(isModerator = it.isModerator)
+            }
             try {
                 val j = api.joinTable(tableId)
                 state.value = state.value.copy(
@@ -157,6 +161,26 @@ class TableRoomViewModel @Inject constructor(
     }
 
     val bannedList = MutableStateFlow<List<BlockedUserDto>?>(null)  // non-null = sheet open
+
+    fun addFriend(target: MemberDto) = viewModelScope.launch {
+        runCatching { api.sendFriendRequest(TargetRequest(target.id)) }
+            .onSuccess { state.value = state.value.copy(notice = "Friend request sent to ${target.displayName}") }
+            .onFailure { state.value = state.value.copy(notice = "Could not send request (already friends or pending?)") }
+    }
+
+    fun modGiftCoins(target: MemberDto, amount: Long) = viewModelScope.launch {
+        runCatching { api.modGiftCoins(GiftCoinsRequest(target.id, amount)) }
+            .onSuccess { state.value = state.value.copy(
+                notice = "Gifted ${"%,d".format(amount)} coins to ${target.displayName} 🎁") }
+            .onFailure { state.value = state.value.copy(notice = "Gift failed") }
+    }
+
+    fun modGiftVip(target: MemberDto, tier: Int) = viewModelScope.launch {
+        runCatching { api.modGiftVip(GiftVipRequest(target.id, tier)) }
+            .onSuccess { state.value = state.value.copy(
+                notice = "Gifted VIP$tier to ${target.displayName} 👑") }
+            .onFailure { state.value = state.value.copy(notice = "Gift failed") }
+    }
 
     fun openBanned() = viewModelScope.launch {
         runCatching { api.tableBlocks(state.value.tableId) }

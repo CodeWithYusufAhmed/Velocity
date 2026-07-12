@@ -57,6 +57,7 @@ private fun InitialsCircle(name: String, size: Int) {
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
+                    onOpenDm: (Long, String) -> Unit = { _, _ -> },
                     vm: TableRoomViewModel = hiltViewModel()) {
     val s by vm.state.collectAsState()
     var chatInput by remember { mutableStateOf("") }
@@ -260,6 +261,38 @@ fun TableRoomScreen(tableId: Long, tableName: String, onExit: () -> Unit,
                     Text(m.displayName + if (m.vipTier > 0) "  VIP${m.vipTier}" else "",
                         style = MaterialTheme.typography.titleMedium)
                 }
+                Row(Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { vm.addFriend(m); menuFor = null },
+                        modifier = Modifier.weight(1f)) { Text("➕ Add") }
+                    Button(onClick = { menuFor = null; onOpenDm(m.id, m.displayName) },
+                        modifier = Modifier.weight(1f)) { Text("💬 Message") }
+                }
+
+                if (s.isModerator) {
+                    var giftCoins by remember { mutableStateOf("100000") }
+                    Text("🛡️ Moderator gifts", style = MaterialTheme.typography.labelLarge,
+                        color = Amber)
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(giftCoins, { giftCoins = it.filter(Char::isDigit) },
+                            label = { Text("Coins") }, singleLine = true,
+                            modifier = Modifier.weight(1f))
+                        Button(onClick = {
+                            giftCoins.toLongOrNull()?.let { vm.modGiftCoins(m, it) }
+                            menuFor = null
+                        }) { Text("GIFT COINS") }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text("GIFT VIP:", style = MaterialTheme.typography.labelMedium)
+                        (1..5).forEach { tier ->
+                            Button(onClick = { vm.modGiftVip(m, tier); menuFor = null },
+                                contentPadding = PaddingValues(horizontal = 10.dp)) { Text("$tier") }
+                        }
+                    }
+                }
+
                 @Composable fun item(label: String, action: String) {
                     TextButton(onClick = { vm.moderate(action, m); menuFor = null },
                         modifier = Modifier.fillMaxWidth()) { Text(label) }

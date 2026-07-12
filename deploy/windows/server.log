@@ -1076,3 +1076,178 @@ INFO:     connection closed
 INFO:     163.61.240.40:0 - "POST /auth/login HTTP/1.1" 422 Unprocessable Entity
 INFO:     163.61.240.40:0 - "POST /auth/login HTTP/1.1" 401 Unauthorized
 INFO:     163.61.240.40:0 - "POST /auth/register HTTP/1.1" 422 Unprocessable Entity
+INFO:     163.61.240.40:0 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/game?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTE5NiwiZXhwIjoxNzgzODQwMDk2fQ.uacovogat1KEA6xkj3p34yHHxjYMJYQ-3wrRzRBI4go" [accepted]
+INFO:     connection open
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/social?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTE5NiwiZXhwIjoxNzgzODQwMDk2fQ.uacovogat1KEA6xkj3p34yHHxjYMJYQ-3wrRzRBI4go" [accepted]
+INFO:     connection open
+INFO:     163.61.240.40:0 - "GET /rounds/odds HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /users/4/avatar HTTP/1.1" 404 Not Found
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /me/avatar HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /users/4/avatar HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     connection closed
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/game?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTE5NiwiZXhwIjoxNzgzODQwMDk2fQ.uacovogat1KEA6xkj3p34yHHxjYMJYQ-3wrRzRBI4go" [accepted]
+INFO:     connection open
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/social?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTE5NiwiZXhwIjoxNzgzODQwMDk2fQ.uacovogat1KEA6xkj3p34yHHxjYMJYQ-3wrRzRBI4go" [accepted]
+INFO:     connection open
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/search?q=fa HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/search?q=fay HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /users/2/avatar HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/search?q=fayy HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/search?q=fayya HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /friends/requests HTTP/1.1" 201 Created
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/odds HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /me/bonus HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /friends/requests HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/1/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/1/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/1/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/1/sit HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/1/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/1/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 401 Unauthorized
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 401 Unauthorized
+INFO:     163.61.240.40:0 - "POST /auth/refresh HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /auth/refresh HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/1/join HTTP/1.1" 403 Forbidden
+INFO:     163.61.240.40:0 - "POST /tables/1/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables/1/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/1/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables HTTP/1.1" 429 Too Many Requests
+INFO:     163.61.240.40:0 - "POST /tables HTTP/1.1" 429 Too Many Requests
+INFO:     163.61.240.40:0 - "POST /tables HTTP/1.1" 429 Too Many Requests
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/game?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTM2NywiZXhwIjoxNzgzODQwMjY3fQ.hdk1Lhl-i6oQSTJbCeHtYu-jTH20YlOp2Fx8iL4lCHk" [accepted]
+INFO:     connection open
+INFO:     ('163.61.240.40', 0) - "WebSocket /ws/social?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MzgzOTM2NywiZXhwIjoxNzgzODQwMjY3fQ.hdk1Lhl-i6oQSTJbCeHtYu-jTH20YlOp2Fx8iL4lCHk" [accepted]
+INFO:     connection open
+INFO:     163.61.240.40:0 - "POST /tables HTTP/1.1" 429 Too Many Requests
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/sit HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /users/4/avatar HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /users/4/avatar HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/sit HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /mod/reports HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /mod/reports/1/resolve HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /mod/reports HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/odds HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     connection closed
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables HTTP/1.1" 429 Too Many Requests
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/sit HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/stand HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/sit HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /blocks/4 HTTP/1.1" 400 Bad Request
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /me HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/join HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /tables/4/members HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "GET /rounds/recent HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/4/leave HTTP/1.1" 204 No Content
+INFO:     163.61.240.40:0 - "GET /tables HTTP/1.1" 200 OK
+INFO:     163.61.240.40:0 - "POST /tables/0/leave HTTP/1.1" 204 No Content
+INFO:     connection closed
+INFO:     connection closed

@@ -84,7 +84,10 @@ fun VelocityApp() {
                 val name = java.net.URLDecoder.decode(
                     entry.arguments?.getString("name") ?: "Table", "UTF-8")
                 TableRoomScreen(tableId = id, tableName = name,
-                    onExit = { navController.popBackStack() })
+                    onExit = { navController.popBackStack() },
+                    onOpenDm = { uid, uname ->
+                        navController.navigate("dm/$uid/${java.net.URLEncoder.encode(uname, "UTF-8")}")
+                    })
             }
             composable(Tab.Friends.route) {
                 FriendsScreen(onOpenDm = { id, name ->
